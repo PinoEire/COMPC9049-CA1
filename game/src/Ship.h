@@ -1,35 +1,65 @@
 #pragma once
-#include "raylib.h"
-#include "Globals.h"
+#include "GameObjectBase.h"
 
-class Ship
+extern Rectangle screen;
+
+class Ship : public GameObjectBase
 {
 public:
 	Ship(Texture2D ship, Texture2D turret)
+		: GameObjectBase()
 	{
+		tag = "player";
 		shipTexture = ship;
 		turretTexture = turret;
-		currentPosition.x = screenWidth / 2 - ship.width * shipScale / 2;
-		currentPosition.y = screenHeight / 2 - ship.height * shipScale / 2;
-		turretPosition.x = screenWidth / 2 - turretTexture.width * turretScale / 2;
-		turretPosition.y = screenHeight / 2 - turretTexture.height * turretScale / 2;
+		
+		shipRect.width = shipTexture.width;
+		shipRect.height = shipTexture.height;
+		shipPivot.x = shipTexture.width / 2 * shipScale;
+		shipPivot.y = shipTexture.height / 2 * shipScale;
+
+		turretRect.width = turretTexture.width;
+		turretRect.height= turretTexture.height;
+		turretPivot.x = turretTexture.width / 2 * turretScale;
+		turretPivot.y = turretTexture.height / 2 * turretScale;
+
+		currentPosition.x = screen.width / 2;
+		currentPosition.y = screen.height / 2;
+
+		turretPosition = currentPosition;
+
+		bulletTexture = LoadTexture("resources/Textures/bullet.png");
 	}
 	void Draw();
-	void Move(Vector2 stickValues);
-	void UpdateTurret(Vector2 stickValues);
+	void Move(Vector2 stickValues, float deltaTime);
+	void UpdateTurret(Vector2 stickValues, float deltaTime);
 	Vector2 GetPosition();
 	void SetPosition(Vector2 stickValues);
 
 private:
+	const float shipScale = 0.5;
+	const float turretScale = 0.25;
+	const float fireRate = 0.25;
+
+	int countBullets;
+
 	Vector2 currentPosition{};
 	Vector2 turretPosition{};
-	float shipScale = 0.5;
-	float turretScale = 0.25;
+	Vector2 shipPivot{};
+	Vector2 turretPivot{};
+
 	float currentRotation = 0;
 	float turretRotation = 0;
 	float health = 1;
-	float speed = 20;
+	float maxSpeed = 500;
+	float fireRateCounter = 0;
+	
+	Rectangle shipRect{0, 0, 0, 0};
+	Rectangle turretRect{0, 0, 0, 0};
+	Rectangle destination{ 0, 0, 0, 0 };
+	
 	Texture2D shipTexture;
 	Texture2D turretTexture;
+	Texture2D bulletTexture;
 };
 

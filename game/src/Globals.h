@@ -1,19 +1,14 @@
 #pragma once
+#include <list>
+#include <string>
 #include "raylib.h"
+#include "Asteroid.h"
+#include "Bullet.h"
 
-static const int screenWidth = 1280;
-static const int screenHeight = 720;
-static const char *gameWindowTitle = "To Be Determined";
+int screenWidth = 1280;
+int screenHeight = 720;
+Rectangle screen{ 0, 0, screenWidth, screenHeight };
 
-//----------------------------------------------------------------------------------
-// Types and Structures Definition
-//----------------------------------------------------------------------------------
-typedef enum GameScreen { LOGO = 0, TITLE, OPTIONS, GAMEPLAY, ENDING } GameScreen;
+std::list<Bullet> theBullets;
+std::list<Asteroid> theAsteroids;
 
-//----------------------------------------------------------------------------------
-// Global Variables Declaration (shared by several modules)
-//----------------------------------------------------------------------------------
-extern GameScreen currentScreen;
-extern Font font;
-extern Music music;
-extern Sound fxCoin;
