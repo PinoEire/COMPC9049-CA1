@@ -29,6 +29,7 @@ float asteroidsSpawningTimer = 0;
 float const asteroidsSpawnTime = 6;
 int const maxAsteroidsToSpawn = 2;
 Texture2D asteroidTextures[2];
+bool isPlaying = false;
 
 /// <summary>
 /// Game execution entry point
@@ -55,12 +56,13 @@ int main(int argc, char* argv[])
 	// Force early detection of the presence of the gamepad
 	IsGamepadAvailable(0);
 
-	// Initialise basic game objects
+	// Initialise scene game objects
 	Ship player(LoadTexture("resources/Textures/goShip.png"), LoadTexture("resources/Textures/goTurret.png"));
 	Texture2D background = LoadTexture("resources/Textures/Nebula Aqua-Pink.png");
 	Rectangle bgRect{ 0, 0, background.width, background.height };
 	asteroidTextures[0] = LoadTexture("resources/Textures/Asteroid1.png");
 	asteroidTextures[1] = LoadTexture("resources/Textures/Asteroid2.png");
+	Texture2D gamepadTexture = LoadTexture("resources/Textures/gamepad.png");
 
 
 	// Load the font
@@ -74,7 +76,7 @@ int main(int argc, char* argv[])
 		// Update logic
 		deltaTime = GetFrameTime();
 
-		if (IsGamepadAvailable(0))
+		if (isPlaying && IsGamepadAvailable(0))
 		{
 			// Get the sticks' values
 			stickLeft.x = GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X);
@@ -82,11 +84,11 @@ int main(int argc, char* argv[])
 			stickRight.x = GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X);
 			stickRight.y = GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y);
 
-			// Call the method to see if we want to spawn new asteroids
-			SpawnAsteroids(deltaTime);
-
 			// Check collisions
 			CheckCollisions();
+
+			// Call the method to see if we want to spawn new asteroids
+			SpawnAsteroids(deltaTime);
 
 			// Move the player
 			player.Move(stickLeft, deltaTime);
@@ -111,6 +113,19 @@ int main(int argc, char* argv[])
 			}
 			// Process the death list
 			CleanLists();
+		} 
+		else if (!isPlaying)
+		{
+			// Intro screen
+			if (GetGamepadButtonPressed() == GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
+			{
+				isPlaying = true;
+				asteroidsSpawningTimer = 100;
+				currentPoints = 0;
+				CleanLists();
+				theAsteroids.clear();
+				theBullets.clear();
+			}
 		}
 
 		// Drawing logic
@@ -119,24 +134,34 @@ int main(int argc, char* argv[])
 		ClearBackground(RAYWHITE);
 		// Draw the background 
 		DrawTexturePro(background, bgRect, screen, Vector2Zero(), 0, WHITE);
-		// Draw the HUD
-		DrawHUD();
 
-		if (!IsGamepadAvailable(0))
+		if (isPlaying)
 		{
-			// Error message in case there is no gamepad attached
-			DrawText("Cannot find any valid gamepad!", 0, 0, 48, RED);
+			// Draw the HUD
+			DrawHUD();
+
+			if (!IsGamepadAvailable(0))
+			{
+				// Error message in case there is no gamepad attached
+				DrawText("Cannot find any valid gamepad!", 0, 0, 48, RED);
+			}
+			else
+			{
+				player.Draw();
+				// Draw the bullets, if any
+				for (auto it = theBullets.begin(); it != theBullets.end(); it++)
+					it->Draw();
+				// Draw the asteroids, if any
+				for (auto it = theAsteroids.begin(); it != theAsteroids.end(); it++)
+					it->Draw();
+			}
 		}
 		else
 		{
-			player.Draw();
-			// Draw the bullets, if any
-			for (auto it = theBullets.begin(); it != theBullets.end(); it++)
-				it->Draw();
-			// Draw the asteroids, if any
-			for (auto it = theAsteroids.begin(); it != theAsteroids.end(); it++)
-				it->Draw();
+			// Draw the opening image
+			DrawTexturePro(gamepadTexture, Rectangle{0, 0, (float)gamepadTexture.width, (float)gamepadTexture.height}, screen, Vector2Zero(), 0, WHITE);
 		}
+		// End Drawing logic
 		EndDrawing();
 	}
 
