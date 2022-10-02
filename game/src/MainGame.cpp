@@ -9,6 +9,8 @@ extern int screenWidth;
 extern int screenHeight;
 extern std::list<Bullet> theBullets;
 extern std::list<Asteroid> theAsteroids;
+extern int currentPoints;
+extern int highScore;
 
 static const char* gameWindowTitle = "Asteroids Remake";
 
@@ -16,7 +18,9 @@ static const char* gameWindowTitle = "Asteroids Remake";
 void DrawHUD();
 void CleanLists();
 void CheckCollisions();
-void SpawnAsteroids(float deltaTime, Texture2D theAsteroidTexture[]);
+void SpawnAsteroids(float deltaTime);
+void SpawnRubble(Vector2 origin, float newScale, float newSpeed);
+void CreateAnAsteroid(Vector2 thePosition, float theSpeed, float theScale);
 
 Font stencil;
 std::list<Bullet> bulletsToDie;
@@ -24,6 +28,7 @@ std::list<Asteroid> asteroidsToDie;
 float asteroidsSpawningTimer = 0;
 float const asteroidsSpawnTime = 6;
 int const maxAsteroidsToSpawn = 2;
+Texture2D asteroidTextures[2];
 
 /// <summary>
 /// Game execution entry point
@@ -38,8 +43,6 @@ int main(int argc, char* argv[])
 	Vector2 stickRight{};
 	Vector2 tmpV2{};
 	float deltaTime = 0;
-	Texture2D asteroidTexture[2];
-
 
 	// Set MSAA 4X hint before windows creation
 	SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -56,8 +59,8 @@ int main(int argc, char* argv[])
 	Ship player(LoadTexture("resources/Textures/goShip.png"), LoadTexture("resources/Textures/goTurret.png"));
 	Texture2D background = LoadTexture("resources/Textures/Nebula Aqua-Pink.png");
 	Rectangle bgRect{ 0, 0, background.width, background.height };
-	asteroidTexture[0] = LoadTexture("resources/Textures/Asteroid1.png");
-	asteroidTexture[1] = LoadTexture("resources/Textures/Asteroid2.png");
+	asteroidTextures[0] = LoadTexture("resources/Textures/Asteroid1.png");
+	asteroidTextures[1] = LoadTexture("resources/Textures/Asteroid2.png");
 
 
 	// Load the font
@@ -80,7 +83,10 @@ int main(int argc, char* argv[])
 			stickRight.y = GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y);
 
 			// Call the method to see if we want to spawn new asteroids
-			SpawnAsteroids(deltaTime, asteroidTexture);
+			SpawnAsteroids(deltaTime);
+
+			// Check collisions
+			CheckCollisions();
 
 			// Move the player
 			player.Move(stickLeft, deltaTime);
@@ -103,8 +109,6 @@ int main(int argc, char* argv[])
 				if (it->IsToDie())
 					asteroidsToDie.push_back(*it);
 			}
-			// Check collisions
-			CheckCollisions();
 			// Process the death list
 			CleanLists();
 		}
@@ -146,6 +150,9 @@ int main(int argc, char* argv[])
 void DrawHUD()
 {
 	DrawTextEx(stencil, "Left stick to move, right stick to shoot", Vector2{ 10, 10 }, 18, 0, YELLOW);
+	std::string score{ "SCORE: " + std::to_string(currentPoints)};
+	int pixels = MeasureText(score.c_str(), 18);
+	DrawTextEx(stencil, score.c_str(), Vector2{10, screen.height - 15}, 18, 0, YELLOW);
 }
 
 /// <summary>
@@ -159,9 +166,28 @@ void CheckCollisions()
 		{
 			if (bullet->CheckCollision(asteroid->GetPosition(), asteroid->GetRadius()))
 			{
+				currentPoints += 5;
+				bullet->YouMustDie();
 				asteroid->YouMustDie();
+				float newScale = asteroid->GetScale() / 2;
+				if (newScale >= 0.03)
+				{
+					SpawnRubble(asteroid->GetPosition(), newScale, asteroid->GetSpeed() * 1.2);
+				}
+				break;
 			}
 		}
+	}
+}
+
+void SpawnRubble(Vector2 origin, float newScale, float newSpeed)
+{
+	// Decide how many smaller asteroids to spawn
+	int howMany = GetRandomValue(3, 5);
+	// Spawn the rubble
+	for (int i = 0; i < howMany; i++)
+	{
+		CreateAnAsteroid(origin, newSpeed, newScale);
 	}
 }
 
@@ -170,7 +196,7 @@ void CheckCollisions()
 /// </summary>
 /// <param name="deltaTime">The delta time between frames</param>
 /// <param name="theAsteroidTexture">The list of asteroids textures</param>
-void SpawnAsteroids(float deltaTime, Texture2D theAsteroidTexture[])
+void SpawnAsteroids(float deltaTime)
 {
 	// Increment the timer
 	asteroidsSpawningTimer += deltaTime;
@@ -181,28 +207,29 @@ void SpawnAsteroids(float deltaTime, Texture2D theAsteroidTexture[])
 		asteroidsSpawningTimer = 0;
 		// Establish how many asteroids to spawn
 		int max = GetRandomValue(1, maxAsteroidsToSpawn);
+		// Variable for the new position
+		Vector2 newPosition{};
 		// Spawn the new asteroids
 		for (int i = 0; i < max; i++)
 		{
-			// Pick a random texture index
-			int idx = GetRandomValue(0, 1);
-			// Randomise the position based on odd/even spawning asteroid
-			if ((i + 1) % 2 == 0)
-			{
-				// Create a new asteroid
-				Asteroid tmp{ theAsteroidTexture[idx], Vector2{(float)GetRandomValue(0, screen.width), -50}, 200, 0.2 };
-				// Add the new asteroid to the list
-				theAsteroids.push_back(tmp);
-			}
+			// Pick a new random position
+			if (GetRandomValue(0, 1) == 0)
+				newPosition = { (float)GetRandomValue(0, screen.width), -50 };
 			else
-			{
-				// Create a new asteroid
-				Asteroid tmp{ theAsteroidTexture[idx], Vector2{-50, (float)GetRandomValue(0, screen.height)}, 200, 0.2 };
-				// Add the new asteroid to the list
-				theAsteroids.push_back(tmp);
-			}
+				newPosition = { -50, (float)GetRandomValue(0, screen.height) };
+			CreateAnAsteroid(newPosition, 200, 0.2);
 		}
 	}
+}
+
+void CreateAnAsteroid(Vector2 thePosition, float theSpeed, float theScale)
+{
+	// Pick a random texture index
+	int idx = GetRandomValue(0, 1);
+	// Create a new asteroid
+	Asteroid tmp{ asteroidTextures[idx], thePosition, theSpeed, theScale };
+	// Add the new asteroid to the list
+	theAsteroids.push_back(tmp);
 }
 
 /// <summary>

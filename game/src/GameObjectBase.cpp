@@ -63,6 +63,11 @@ float GameObjectBase::GetRadius()
 	return objectRadius;
 }
 
+float GameObjectBase::GetSpeed()
+{
+	return speed;
+}
+
 Vector2 GameObjectBase::GetPosition()
 {
 	return position;
