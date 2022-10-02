@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
 	Vector2 stickRight{};
 	Vector2 tmpV2{};
 	float deltaTime = 0;
+	float timePlayed = 0;
 
 	// Set MSAA 4X hint before windows creation
 	SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -63,6 +64,7 @@ int main(int argc, char* argv[])
 	asteroidTextures[0] = LoadTexture("resources/Textures/Asteroid1.png");
 	asteroidTextures[1] = LoadTexture("resources/Textures/Asteroid2.png");
 	Texture2D gamepadTexture = LoadTexture("resources/Textures/gamepad.png");
+	Music music = LoadMusicStream("resources/Audio/bkmusic.mp3");
 
 
 	// Load the font
@@ -70,11 +72,20 @@ int main(int argc, char* argv[])
 	// Set bilinear scale filter for better font scaling
 	SetTextureFilter(stencil.texture, TEXTURE_FILTER_BILINEAR);
 
+	// Start the backgroung music
+	PlayMusicStream(music);
+	SetMusicVolume(music, 0.1);
+
 	// Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
 		// Update logic
 		deltaTime = GetFrameTime();
+		// Play the music
+		UpdateMusicStream(music);
+		timePlayed = GetMusicTimePlayed(music) / GetMusicTimeLength(music);
+		if (timePlayed >= 1.0f)
+			SeekMusicStream(music, 0);
 
 		if (isPlaying && IsGamepadAvailable(0))
 		{
@@ -165,6 +176,9 @@ int main(int argc, char* argv[])
 		EndDrawing();
 	}
 
+	// Unload music and close the audio device
+	UnloadMusicStream(music);
+	CloseAudioDevice();
 	// Close window and OpenGL context
 	CloseWindow();
 }
@@ -174,10 +188,11 @@ int main(int argc, char* argv[])
 /// </summary>
 void DrawHUD()
 {
-	DrawTextEx(stencil, "Left stick to move, right stick to shoot", Vector2{ 10, 10 }, 18, 0, YELLOW);
 	std::string score{ "SCORE: " + std::to_string(currentPoints)};
-	int pixels = MeasureText(score.c_str(), 18);
-	DrawTextEx(stencil, score.c_str(), Vector2{10, screen.height - 15}, 18, 0, YELLOW);
+	DrawTextEx(stencil, score.c_str(), Vector2{10, 10}, 18, 0, YELLOW);
+	// Draw FPS
+	std::string fps{ "FPS: " + std::to_string(GetFPS()) };
+	DrawTextEx(stencil, fps.c_str(), Vector2{ 10, screen.height - 20 }, 18, 0, YELLOW);
 }
 
 /// <summary>
