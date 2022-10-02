@@ -79,6 +79,7 @@ int main(int argc, char* argv[])
 			stickRight.x = GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X);
 			stickRight.y = GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y);
 
+			// Call the method to see if we want to spawn new asteroids
 			SpawnAsteroids(deltaTime, asteroidTexture);
 
 			// Move the player
@@ -88,16 +89,21 @@ int main(int argc, char* argv[])
 			// Update the bullets, if any
 			for (auto it = theBullets.begin(); it != theBullets.end(); it++)
 			{
+				// Call the object Update method
 				it->Update(deltaTime);
+				// if the object must die then add it to the death list
 				if (it->IsToDie())
 					bulletsToDie.push_back(*it);
 			}
 			for (auto it = theAsteroids.begin(); it != theAsteroids.end(); it++)
 			{
+				// Call the object Update method
 				it->Update(deltaTime);
+				// if the object must die then add it to the death list
 				if (it->IsToDie())
 					asteroidsToDie.push_back(*it);
 			}
+			// Process the death list
 			CleanLists();
 		}
 
@@ -132,41 +138,65 @@ int main(int argc, char* argv[])
 	CloseWindow();
 }
 
+/// <summary>
+/// Method used to draw the Heads Up Display (HUD)
+/// </summary>
 void DrawHUD()
 {
 	DrawTextEx(stencil, "Left stick to move, right stick to shoot", Vector2{ 10, 10 }, 18, 0, YELLOW);
 }
 
+/// <summary>
+/// Method checking the collisions between objects
+/// </summary>
 void CheckCollisions()
 {
 
 }
 
+/// <summary>
+/// Method in charge of spawning new asteroids
+/// </summary>
+/// <param name="deltaTime">The delta time between frames</param>
+/// <param name="theAsteroidTexture">The list of asteroids textures</param>
 void SpawnAsteroids(float deltaTime, Texture2D theAsteroidTexture[])
 {
+	// Increment the timer
 	asteroidsSpawningTimer += deltaTime;
+	// Check if we match the spawn rate
 	if (asteroidsSpawningTimer >= asteroidsSpawnTime)
 	{
+		// Reset the timer
 		asteroidsSpawningTimer = 0;
+		// Establish how many asteroids to spawn
 		int max = GetRandomValue(1, maxAsteroidsToSpawn);
+		// Spawn the new asteroids
 		for (int i = 0; i < max; i++)
 		{
+			// Pick a random texture index
 			int idx = GetRandomValue(0, 1);
-
+			// Randomise the position based on odd/even spawning asteroid
 			if ((i + 1) % 2 == 0)
 			{
+				// Create a new asteroid
 				Asteroid tmp{ theAsteroidTexture[idx], Vector2{(float)GetRandomValue(0, screen.width), -50}, 200, 0.2 };
+				// Add the new asteroid to the list
 				theAsteroids.push_back(tmp);
 			}
 			else
 			{
+				// Create a new asteroid
 				Asteroid tmp{ theAsteroidTexture[idx], Vector2{-50, (float)GetRandomValue(0, screen.height)}, 200, 0.2 };
+				// Add the new asteroid to the list
 				theAsteroids.push_back(tmp);
 			}
 		}
 	}
 }
 
+/// <summary>
+/// Method in charge of destroying the dead items from the lists
+/// </summary>
 void CleanLists()
 {
 	for (auto it = bulletsToDie.begin(); it != bulletsToDie.end(); it++)

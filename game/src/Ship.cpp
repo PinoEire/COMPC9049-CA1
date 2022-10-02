@@ -47,13 +47,25 @@ void Ship::UpdateTurret(Vector2 stickValues, float deltaTime)
 {
 	if (Vector2LengthSqr(stickValues) > 0.05)  // Account for the dead zone
 	{
+		// Increment the timer
 		fireRateCounter += deltaTime;
+		// Compute the new turret rotation
 		turretRotation = atan2(stickValues.y, stickValues.x) * RAD2DEG + 90;
+		// Check if the fire rete is reached
 		if (fireRateCounter >= fireRate)
 		{
+			// Restart the timer
 			fireRateCounter = 0;
-			countBullets++;
-			Bullet bullet{ bulletTexture, stickValues, currentPosition };
+			// Compute the bullet position at the muzzle
+			float rotRad = turretRotation * DEG2RAD;		
+			float x = (cosf(rotRad) * (muzzlePosition.x - turretPivot.x)) -
+						(sinf(rotRad) * (muzzlePosition.y - turretPivot.y)) + turretPosition.x;
+			float y = (sinf(rotRad) * (muzzlePosition.x - turretPivot.x)) +
+						(cosf(rotRad) * (muzzlePosition.y - turretPivot.y)) + turretPosition.y;
+			Vector2 pos{ x, y };
+			// Spawn the new bullet
+			Bullet bullet{ bulletTexture, stickValues, pos };
+			// Add the new bullet to the list
 			theBullets.push_back(bullet);
 		}
 	}

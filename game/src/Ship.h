@@ -21,8 +21,11 @@ public:
 
 		turretRect.width = turretTexture.width;
 		turretRect.height= turretTexture.height;
+
 		turretPivot.x = turretTexture.width / 2 * turretScale;
 		turretPivot.y = turretTexture.height / 2 * turretScale;
+		muzzlePosition.x = muzzlePosition.x * turretScale;
+		muzzlePosition.y = muzzlePosition.y * turretScale;
 
 		currentPosition.x = screen.width / 2;
 		currentPosition.y = screen.height / 2;
@@ -47,6 +50,8 @@ private:
 	Vector2 turretPosition{};
 	Vector2 shipPivot{};
 	Vector2 turretPivot{};
+	Vector2 tmpV2{};
+	Vector2 muzzlePosition{168, 35};
 
 	float currentRotation = 0;
 	float turretRotation = 0;
