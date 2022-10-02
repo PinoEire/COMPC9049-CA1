@@ -28,6 +28,9 @@ public:
 	bool CheckCollision(Rectangle otherRect);
 	bool CheckCollision(Vector2 otherCenter, float otherRadius);
 	float GetScale();
+	Vector2 GetPosition();
+	float GetRadius();
+	void YouMustDie();
 protected:
 	float objectRadius;
 	float scale = 1;

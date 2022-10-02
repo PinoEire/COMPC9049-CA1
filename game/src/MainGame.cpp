@@ -103,6 +103,8 @@ int main(int argc, char* argv[])
 				if (it->IsToDie())
 					asteroidsToDie.push_back(*it);
 			}
+			// Check collisions
+			CheckCollisions();
 			// Process the death list
 			CleanLists();
 		}
@@ -151,7 +153,16 @@ void DrawHUD()
 /// </summary>
 void CheckCollisions()
 {
-
+	for (auto bullet = theBullets.begin(); bullet != theBullets.end(); bullet++)
+	{
+		for (auto asteroid = theAsteroids.begin(); asteroid != theAsteroids.end(); asteroid++)
+		{
+			if (bullet->CheckCollision(asteroid->GetPosition(), asteroid->GetRadius()))
+			{
+				asteroid->YouMustDie();
+			}
+		}
+	}
 }
 
 /// <summary>

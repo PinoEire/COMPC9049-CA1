@@ -34,26 +34,12 @@ float GameObjectBase::GetScale()
 
 bool GameObjectBase::CheckCollision(Rectangle otherRect)
 {
-	if (ImCircular)
-	{
-		return CheckCollisionCircleRec(objectCenter, objectRadius, otherRect);
-	}
-	else
-	{
-		return CheckCollisionRecs(objectRect, otherRect);
-	}
+	return CheckCollisionPointRec(position, otherRect);
 }
 
 bool GameObjectBase::CheckCollision(Vector2 otherCenter, float otherRadius)
 {
-	if (ImCircular)
-	{
-		return CheckCollisionCircles(objectCenter, objectRadius, otherCenter, otherRadius);
-	}
-	else
-	{
-		return CheckCollisionCircleRec(otherCenter, otherRadius, objectRect);
-	}
+	return CheckCollisionPointCircle(position, otherCenter, otherRadius);
 }
 
 
@@ -65,4 +51,19 @@ Tags GameObjectBase::GetTag()
 bool GameObjectBase::IsToDie()
 {
 	return mustDie;
+}
+
+void GameObjectBase::YouMustDie()
+{
+	mustDie = true;
+}
+
+float GameObjectBase::GetRadius()
+{
+	return objectRadius;
+}
+
+Vector2 GameObjectBase::GetPosition()
+{
+	return position;
 }

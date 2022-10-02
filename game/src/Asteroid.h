@@ -25,9 +25,9 @@ public:
 		objectRect.width = asteroidTexture.width;
 		objectRect.height = asteroidTexture.height;
 		ImCircular = true;
+		objectRadius = pivot.x;
 	}
 	void Draw();
-	Vector2 GetPosition();
 	void Update(float deltaTime);
 private:
 	float rotationSpeed;

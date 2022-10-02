@@ -21,7 +21,3 @@ void Asteroid::Update(float deltaTime)
 		rotation = 0;
 }
 
-Vector2 Asteroid::GetPosition()
-{
-	return position;
-}

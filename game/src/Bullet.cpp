@@ -15,8 +15,3 @@ void Bullet::Draw()
 	destination.height = objectRect.height * scale;
 	DrawTexturePro(bulletTexture, objectRect, destination, pivot, rotation, WHITE);
 }
-
-Vector2 Bullet::GetPosition()
-{
-	return position;
-}

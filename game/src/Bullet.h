@@ -15,6 +15,7 @@ public:
 		rotation = 0;
 		pivot.x = bulletTexture.width / 2 * scale;
 		pivot.y = bulletTexture.height / 2 * scale;
+		objectRadius = pivot.x;
 		position = thePosition;
 		position.x = position.x - (2 + theDirection.x) * pivot.x;
 		position.y = position.y - (2 + theDirection.y) * pivot.y;
@@ -22,10 +23,10 @@ public:
 		objectRect.width = bulletTexture.width;
 		objectRect.height = bulletTexture.height;
 		speed = 700;
+		ImCircular = false;
 	}
 
 	void Draw();
-	Vector2 GetPosition();
 private:
 	Texture2D bulletTexture;
 };
