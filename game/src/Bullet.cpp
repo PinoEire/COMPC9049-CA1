@@ -11,9 +11,9 @@ void Bullet::Draw()
 {
 	destination.x = position.x;
 	destination.y = position.y;
-	destination.width = bulletRect.width * scale;
-	destination.height = bulletRect.height * scale;
-	DrawTexturePro(bulletTexture, bulletRect, destination, pivot, rotation, WHITE);
+	destination.width = objectRect.width * scale;
+	destination.height = objectRect.height * scale;
+	DrawTexturePro(bulletTexture, objectRect, destination, pivot, rotation, WHITE);
 }
 
 Vector2 Bullet::GetPosition()

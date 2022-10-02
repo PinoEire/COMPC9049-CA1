@@ -15,10 +15,15 @@ static const char* gameWindowTitle = "Asteroids Remake";
 // Forward declarations
 void DrawHUD();
 void CleanLists();
+void CheckCollisions();
+void SpawnAsteroids(float deltaTime, Texture2D theAsteroidTexture[]);
+
 Font stencil;
 std::list<Bullet> bulletsToDie;
 std::list<Asteroid> asteroidsToDie;
-
+float asteroidsSpawningTimer = 0;
+float const asteroidsSpawnTime = 6;
+int const maxAsteroidsToSpawn = 2;
 
 /// <summary>
 /// Game execution entry point
@@ -28,11 +33,13 @@ std::list<Asteroid> asteroidsToDie;
 /// <returns>Game exit code. Not used at this time.</returns>
 int main(int argc, char* argv[])
 {
-	// Locall computing variables
+	// Local computing variables
 	Vector2 stickLeft{};
 	Vector2 stickRight{};
 	Vector2 tmpV2{};
 	float deltaTime = 0;
+	Texture2D asteroidTexture[2];
+
 
 	// Set MSAA 4X hint before windows creation
 	SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -45,11 +52,13 @@ int main(int argc, char* argv[])
 	// Force early detection of the presence of the gamepad
 	IsGamepadAvailable(0);
 
-
-	// Initialise game objects
+	// Initialise basic game objects
 	Ship player(LoadTexture("resources/Textures/goShip.png"), LoadTexture("resources/Textures/goTurret.png"));
 	Texture2D background = LoadTexture("resources/Textures/Nebula Aqua-Pink.png");
 	Rectangle bgRect{ 0, 0, background.width, background.height };
+	asteroidTexture[0] = LoadTexture("resources/Textures/Asteroid1.png");
+	asteroidTexture[1] = LoadTexture("resources/Textures/Asteroid2.png");
+
 
 	// Load the font
 	stencil = LoadFontEx("resources/Fonts/StencilStd.otf", 18, 0, 0);
@@ -70,6 +79,8 @@ int main(int argc, char* argv[])
 			stickRight.x = GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X);
 			stickRight.y = GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y);
 
+			SpawnAsteroids(deltaTime, asteroidTexture);
+
 			// Move the player
 			player.Move(stickLeft, deltaTime);
 			// Apply turret rotation and shooting logic
@@ -81,7 +92,7 @@ int main(int argc, char* argv[])
 				if (it->IsToDie())
 					bulletsToDie.push_back(*it);
 			}
-			for (auto it = theAsteroids.begin(); it != theAsteroids.end();)
+			for (auto it = theAsteroids.begin(); it != theAsteroids.end(); it++)
 			{
 				it->Update(deltaTime);
 				if (it->IsToDie())
@@ -124,6 +135,36 @@ int main(int argc, char* argv[])
 void DrawHUD()
 {
 	DrawTextEx(stencil, "Left stick to move, right stick to shoot", Vector2{ 10, 10 }, 18, 0, YELLOW);
+}
+
+void CheckCollisions()
+{
+
+}
+
+void SpawnAsteroids(float deltaTime, Texture2D theAsteroidTexture[])
+{
+	asteroidsSpawningTimer += deltaTime;
+	if (asteroidsSpawningTimer >= asteroidsSpawnTime)
+	{
+		asteroidsSpawningTimer = 0;
+		int max = GetRandomValue(1, maxAsteroidsToSpawn);
+		for (int i = 0; i < max; i++)
+		{
+			int idx = GetRandomValue(0, 1);
+
+			if ((i + 1) % 2 == 0)
+			{
+				Asteroid tmp{ theAsteroidTexture[idx], Vector2{(float)GetRandomValue(0, screen.width), -50}, 200, 0.2 };
+				theAsteroids.push_back(tmp);
+			}
+			else
+			{
+				Asteroid tmp{ theAsteroidTexture[idx], Vector2{-50, (float)GetRandomValue(0, screen.height)}, 200, 0.2 };
+				theAsteroids.push_back(tmp);
+			}
+		}
+	}
 }
 
 void CleanLists()

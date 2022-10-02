@@ -15,8 +15,8 @@ void Ship::Draw()
 	destination.x = currentPosition.x;
 	destination.y = currentPosition.y;
 
-	destination.width = shipRect.width * shipScale;
-	destination.height = shipRect.height * shipScale;
+	destination.width = shipRect.width * scale;
+	destination.height = shipRect.height * scale;
 	DrawTexturePro(shipTexture, shipRect, destination, shipPivot, currentRotation, WHITE);
 	// Draw the turret
 	destination.width = turretRect.width * turretScale;

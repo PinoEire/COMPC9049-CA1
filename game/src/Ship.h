@@ -9,14 +9,15 @@ public:
 	Ship(Texture2D ship, Texture2D turret)
 		: GameObjectBase()
 	{
-		tag = "player";
+		tag = Tags::player;
 		shipTexture = ship;
 		turretTexture = turret;
-		
+		scale = 0.5;
+
 		shipRect.width = shipTexture.width;
 		shipRect.height = shipTexture.height;
-		shipPivot.x = shipTexture.width / 2 * shipScale;
-		shipPivot.y = shipTexture.height / 2 * shipScale;
+		shipPivot.x = shipTexture.width / 2 * scale;
+		shipPivot.y = shipTexture.height / 2 * scale;
 
 		turretRect.width = turretTexture.width;
 		turretRect.height= turretTexture.height;
@@ -37,7 +38,6 @@ public:
 	void SetPosition(Vector2 stickValues);
 
 private:
-	const float shipScale = 0.5;
 	const float turretScale = 0.25;
 	const float fireRate = 0.25;
 
@@ -56,7 +56,6 @@ private:
 	
 	Rectangle shipRect{0, 0, 0, 0};
 	Rectangle turretRect{0, 0, 0, 0};
-	Rectangle destination{ 0, 0, 0, 0 };
 	
 	Texture2D shipTexture;
 	Texture2D turretTexture;

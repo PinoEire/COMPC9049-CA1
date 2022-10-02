@@ -1,6 +1,15 @@
 #pragma once
 #include "raylib.h"
+#include "raymath.h"
 #include <string>
+
+enum Tags
+{
+	player,
+	asteroid,
+	ufo,
+	bullet
+};
 
 class GameObjectBase
 {
@@ -13,17 +22,28 @@ public:
 	{
 		return this->myId == other.myId;
 	}
-	std::string GetTag();
+	Tags GetTag();
 	bool IsToDie();
 	void Update(float deltaTime);
+	bool CheckCollision(Rectangle otherRect);
+	bool CheckCollision(Vector2 otherCenter, float otherRadius);
+	float GetScale();
 protected:
+	float objectRadius;
+	float scale = 1;
+	float rotation = 0;
+	Vector2 objectCenter;
+	Vector2 pivot{};
 	float speed = 0;
 	float timeToLive = 2;
 	bool mustDie = false;
 	std::string myId{};
-	std::string tag{};
+	Tags tag{};
 	Vector2 direction{};
 	Vector2 position{};
+	Rectangle objectRect{ 0, 0, 0, 0 };
+	Rectangle destination{ 0, 0, 0, 0 };
+	bool ImCircular = true;
 private:
 	float timeToLiveCounter = 0;
 	std::string GetUniqueObjectId();

@@ -27,9 +27,37 @@ void GameObjectBase::Update(float deltaTime)
 		mustDie = true;
 }
 
+float GameObjectBase::GetScale()
+{
+	return scale;
+}
+
+bool GameObjectBase::CheckCollision(Rectangle otherRect)
+{
+	if (ImCircular)
+	{
+		return CheckCollisionCircleRec(objectCenter, objectRadius, otherRect);
+	}
+	else
+	{
+		return CheckCollisionRecs(objectRect, otherRect);
+	}
+}
+
+bool GameObjectBase::CheckCollision(Vector2 otherCenter, float otherRadius)
+{
+	if (ImCircular)
+	{
+		return CheckCollisionCircles(objectCenter, objectRadius, otherCenter, otherRadius);
+	}
+	else
+	{
+		return CheckCollisionCircleRec(otherCenter, otherRadius, objectRect);
+	}
+}
 
 
-std::string GameObjectBase::GetTag()
+Tags GameObjectBase::GetTag()
 {
 	return tag;
 }
