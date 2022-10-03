@@ -17,7 +17,9 @@ static const char* gameWindowTitle = "Asteroids Remake";
 // Forward declarations
 void DrawHUD();
 void CleanLists();
-void CheckCollisions();
+void CheckBulletsCollisions();
+void CheckPlayerCollisions();
+int GetRandomOneOrMinusOne();
 void SpawnAsteroids(float deltaTime);
 void SpawnRubble(Vector2 origin, float newScale, float newSpeed);
 void CreateAnAsteroid(Vector2 thePosition, float theSpeed, float theScale);
@@ -25,15 +27,19 @@ void CreateAnAsteroid(Vector2 thePosition, float theSpeed, float theScale);
 Font stencil;
 std::list<Bullet> bulletsToDie;
 std::list<Asteroid> asteroidsToDie;
-float asteroidsSpawningTimer = 0;
-float const asteroidsSpawnTime = 6;
+float asteroidsSpawningTimer = 0.0f;
+float const asteroidsSpawnTime = 6.0f;
 int const maxAsteroidsToSpawn = 2;
 Texture2D asteroidTextures[2];
 Texture2D lifeIcon;
 Rectangle lifeIconRect{};
 Rectangle lifeIconDestination{};
+Ship *thePlayer;
 bool isPlaying = false;
 int lives = 4;
+float cameraShakeLevel = 0.0f;
+float const cameraOffsetMax = 10.0f;
+float const cameraAngleMax = 5.0f;
 
 /// <summary>
 /// Game execution entry point
@@ -62,13 +68,17 @@ int main(int argc, char* argv[])
 	IsGamepadAvailable(0);
 
 	// Initialise scene game objects
-	Ship player(LoadTexture("resources/Textures/goShip.png"), LoadTexture("resources/Textures/goTurret.png"));
+	thePlayer = new Ship(LoadTexture("resources/Textures/goShip.png"), LoadTexture("resources/Textures/goTurret.png"));
 	Texture2D background = LoadTexture("resources/Textures/Nebula Aqua-Pink.png");
 	Rectangle bgRect{ 0, 0, background.width, background.height };
+	Rectangle bgRectDest{ -200, -200, screen.width +400, screen.height + 400};
 	asteroidTextures[0] = LoadTexture("resources/Textures/Asteroid1.png");
 	asteroidTextures[1] = LoadTexture("resources/Textures/Asteroid2.png");
 	Texture2D gamepadTexture = LoadTexture("resources/Textures/gamepad.png");
 	Music music = LoadMusicStream("resources/Audio/bkmusic.mp3");
+	Camera2D camera{0};
+	Vector2 cameraOffset = Vector2Zero();
+	float cameraAngle = 0.0f;
 
 	lifeIcon = LoadTexture("resources/Textures/lifeIcon.png");
 	lifeIconRect = { 0, 0, (float)lifeIcon.width, (float)lifeIcon.height };
@@ -82,11 +92,15 @@ int main(int argc, char* argv[])
 
 	// Start the backgroung music
 	PlayMusicStream(music);
-	SetMusicVolume(music, 0.1);
+	SetMusicVolume(music, 0.1f);
 
 	// Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
+		// Reset camera
+		camera.zoom = 1.0f;
+		camera.target = { 0, 0 };
+
 		// Update logic
 		deltaTime = GetFrameTime();
 		// Play the music
@@ -104,15 +118,16 @@ int main(int argc, char* argv[])
 			stickRight.y = GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y);
 
 			// Check collisions
-			CheckCollisions();
+			CheckBulletsCollisions();
+			CheckPlayerCollisions();
 
 			// Call the method to see if we want to spawn new asteroids
 			SpawnAsteroids(deltaTime);
 
 			// Move the player
-			player.Move(stickLeft, deltaTime);
+			thePlayer->Move(stickLeft, deltaTime);
 			// Apply turret rotation and shooting logic
-			player.UpdateTurret(stickRight, deltaTime);
+			thePlayer->UpdateTurret(stickRight, deltaTime);
 			// Update the bullets, if any
 			for (auto it = theBullets.begin(); it != theBullets.end(); it++)
 			{
@@ -132,6 +147,14 @@ int main(int argc, char* argv[])
 			}
 			// Process the death list
 			CleanLists();
+
+			// Update camera shaking level
+			cameraShakeLevel = Clamp(cameraShakeLevel -= deltaTime, 0.0f, 1.0f);
+			cameraOffset.x = cameraShakeLevel * cameraOffsetMax * GetRandomOneOrMinusOne();
+			cameraOffset.y = cameraShakeLevel * cameraOffsetMax * GetRandomOneOrMinusOne();
+			cameraAngle = cameraShakeLevel * cameraAngleMax * GetRandomOneOrMinusOne();
+			camera.offset = cameraOffset;
+			camera.rotation = cameraAngle;
 		} 
 		else if (!isPlaying)
 		{
@@ -139,7 +162,7 @@ int main(int argc, char* argv[])
 			if (GetGamepadButtonPressed() == GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
 			{
 				isPlaying = true;
-				asteroidsSpawningTimer = 100;
+				asteroidsSpawningTimer = 100.0f;
 				currentPoints = 0;
 				lives = 4;
 				CleanLists();
@@ -150,16 +173,15 @@ int main(int argc, char* argv[])
 
 		// Drawing logic
 		BeginDrawing();
+		// start the 2D camera
+		BeginMode2D(camera);
 		// Clear the frame
 		ClearBackground(RAYWHITE);
 		// Draw the background 
-		DrawTexturePro(background, bgRect, screen, Vector2Zero(), 0, WHITE);
+		DrawTexturePro(background, bgRect, bgRectDest, Vector2Zero(), 0, WHITE);
 
 		if (isPlaying)
 		{
-			// Draw the HUD
-			DrawHUD();
-
 			if (!IsGamepadAvailable(0))
 			{
 				// Error message in case there is no gamepad attached
@@ -167,7 +189,7 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
-				player.Draw();
+				thePlayer->Draw();
 				// Draw the bullets, if any
 				for (auto it = theBullets.begin(); it != theBullets.end(); it++)
 					it->Draw();
@@ -175,12 +197,16 @@ int main(int argc, char* argv[])
 				for (auto it = theAsteroids.begin(); it != theAsteroids.end(); it++)
 					it->Draw();
 			}
+			// Draw the HUD
+			DrawHUD();
 		}
 		else
 		{
 			// Draw the opening image
 			DrawTexturePro(gamepadTexture, Rectangle{0, 0, (float)gamepadTexture.width, (float)gamepadTexture.height}, screen, Vector2Zero(), 0, WHITE);
 		}
+		// Stop the 2D camera
+		EndMode2D();
 		// End Drawing logic
 		EndDrawing();
 	}
@@ -190,6 +216,11 @@ int main(int argc, char* argv[])
 	CloseAudioDevice();
 	// Close window and OpenGL context
 	CloseWindow();
+}
+
+int GetRandomOneOrMinusOne()
+{
+	return GetRandomValue(0, 1) == 0 ? -1 : 1;
 }
 
 /// <summary>
@@ -213,9 +244,24 @@ void DrawHUD()
 }
 
 /// <summary>
-/// Method checking the collisions between objects
+/// Method checking the collisions between player and asteroids
 /// </summary>
-void CheckCollisions()
+void CheckPlayerCollisions()
+{
+	for (auto asteroid = theAsteroids.begin(); asteroid != theAsteroids.end(); asteroid++)
+	{
+		if (CheckCollisionCircles(asteroid->GetPosition(), asteroid->GetRadius(), thePlayer->GetPosition(), thePlayer->GetRadius()))
+		{
+			cameraShakeLevel = Clamp(cameraShakeLevel += 0.2, 0.0f, 1.0f);
+			asteroid->YouMustDie();
+		}
+	}
+}
+
+/// <summary>
+/// Method checking the collisions between bullets and asteroids
+/// </summary>
+void CheckBulletsCollisions()
 {
 	for (auto bullet = theBullets.begin(); bullet != theBullets.end(); bullet++)
 	{
@@ -229,7 +275,7 @@ void CheckCollisions()
 				float newScale = asteroid->GetScale() / 2;
 				if (newScale >= 0.03)
 				{
-					SpawnRubble(asteroid->GetPosition(), newScale, asteroid->GetSpeed() * 1.2);
+					SpawnRubble(asteroid->GetPosition(), newScale, asteroid->GetSpeed() * 1.2f);
 				}
 				break;
 			}

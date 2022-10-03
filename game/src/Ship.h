@@ -18,6 +18,7 @@ public:
 		shipRect.height = shipTexture.height;
 		shipPivot.x = shipTexture.width / 2 * scale;
 		shipPivot.y = shipTexture.height / 2 * scale;
+		objectRadius = shipTexture.width / 3 * scale;
 
 		turretRect.width = turretTexture.width;
 		turretRect.height= turretTexture.height;
@@ -39,7 +40,7 @@ public:
 	void UpdateTurret(Vector2 stickValues, float deltaTime);
 	Vector2 GetPosition();
 	void SetPosition(Vector2 stickValues);
-
+	Rectangle GetScreenRect();
 private:
 	const float turretScale = 0.25;
 	const float fireRate = 0.25;

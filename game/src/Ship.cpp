@@ -84,3 +84,8 @@ void Ship::SetPosition(Vector2 stickValues)
 {
 	this->currentPosition = stickValues;
 }
+
+Rectangle Ship::GetScreenRect()
+{
+	return Rectangle{ destination.x - pivot.x, destination.y - pivot.y, destination.width, destination.height };
+}

@@ -25,7 +25,7 @@ public:
 		objectRect.width = asteroidTexture.width;
 		objectRect.height = asteroidTexture.height;
 		ImCircular = true;
-		objectRadius = pivot.x;
+		objectRadius = asteroidTexture.width * scale;
 	}
 	void Draw();
 	void Update(float deltaTime);
