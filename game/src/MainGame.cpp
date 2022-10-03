@@ -3,14 +3,20 @@
 #include "Bullet.h"
 #include "Asteroid.h"
 #include "Ship.h"
+#include "Explosion.h"
 #include <list>
 
 extern int screenWidth;
 extern int screenHeight;
 extern std::list<Bullet> theBullets;
 extern std::list<Asteroid> theAsteroids;
+extern std::list<Explosion> theEffects;
 extern int currentPoints;
 extern int highScore;
+extern Texture2D bulletTexture;
+extern Sound bulletSound[3];
+extern Sound explosionSound[3];
+
 
 static const char* gameWindowTitle = "Asteroids Remake";
 
@@ -27,6 +33,7 @@ void CreateAnAsteroid(Vector2 thePosition, float theSpeed, float theScale);
 Font stencil;
 std::list<Bullet> bulletsToDie;
 std::list<Asteroid> asteroidsToDie;
+std::list<Explosion> ExplosionsToDie;
 float asteroidsSpawningTimer = 0.0f;
 float const asteroidsSpawnTime = 6.0f;
 int const maxAsteroidsToSpawn = 2;
@@ -38,8 +45,11 @@ Ship *thePlayer;
 bool isPlaying = false;
 int lives = 4;
 float cameraShakeLevel = 0.0f;
-float const cameraOffsetMax = 10.0f;
-float const cameraAngleMax = 5.0f;
+float const cameraOffsetMax = 8.0f;
+float const cameraAngleMax = 4.0f;
+float health = 1.0f;
+bool showPlayerDeath = false;
+Texture2D explosionSpritesheets[2];
 
 /// <summary>
 /// Game execution entry point
@@ -53,8 +63,9 @@ int main(int argc, char* argv[])
 	Vector2 stickLeft{};
 	Vector2 stickRight{};
 	Vector2 tmpV2{};
-	float deltaTime = 0;
-	float timePlayed = 0;
+	float deltaTime = 0.0f;
+	float timePlayed = 0.0f;
+	float playerDeathCounter = 0.0f;
 
 	// Set MSAA 4X hint before windows creation
 	SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -68,10 +79,16 @@ int main(int argc, char* argv[])
 	IsGamepadAvailable(0);
 
 	// Initialise scene game objects
+	bulletTexture = LoadTexture("resources/Textures/bullet.png");
 	thePlayer = new Ship(LoadTexture("resources/Textures/goShip.png"), LoadTexture("resources/Textures/goTurret.png"));
 	Texture2D background = LoadTexture("resources/Textures/Nebula Aqua-Pink.png");
 	Rectangle bgRect{ 0, 0, background.width, background.height };
+
+	// bgRectDest is the screenk destination rectangle for the background image.
+	// Adding off-screed margin so to allow the camera shake effect to 
+	// present on screen without white borders.
 	Rectangle bgRectDest{ -200, -200, screen.width +400, screen.height + 400};
+	
 	asteroidTextures[0] = LoadTexture("resources/Textures/Asteroid1.png");
 	asteroidTextures[1] = LoadTexture("resources/Textures/Asteroid2.png");
 	Texture2D gamepadTexture = LoadTexture("resources/Textures/gamepad.png");
@@ -80,9 +97,21 @@ int main(int argc, char* argv[])
 	Vector2 cameraOffset = Vector2Zero();
 	float cameraAngle = 0.0f;
 
+	explosionSpritesheets[0] = LoadTexture("resources/Textures/Explosion01_5x5.png");
+	explosionSpritesheets[1] = LoadTexture("resources/Textures/Explosion02_5x5.png");
+
 	lifeIcon = LoadTexture("resources/Textures/lifeIcon.png");
 	lifeIconRect = { 0, 0, (float)lifeIcon.width, (float)lifeIcon.height };
 	lifeIconDestination = { 0, 0, lifeIcon.width * 0.5f, lifeIcon.height * 0.5f };
+
+	// Load sounds
+	explosionSound[0] = LoadSound("resources/Audio/Explosion 25.wav");
+	explosionSound[1] = LoadSound("resources/Audio/Explosion 26.wav");
+	explosionSound[2] = LoadSound("resources/Audio/Explosion 27.wav");
+	bulletSound[0] = LoadSound("resources/Audio/shoot1.wav");
+	bulletSound[1] = LoadSound("resources/Audio/shoot2.wav");
+	bulletSound[2] = LoadSound("resources/Audio/shoot3.wav");
+	Sound gameOver = LoadSound("resources/Audio/NarratorVoice_gameOver.mp3");
 
 
 	// Load the font
@@ -117,6 +146,21 @@ int main(int argc, char* argv[])
 			stickRight.x = GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X);
 			stickRight.y = GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y);
 
+			// Manage life and death
+			if (health == 0.0f)
+			{
+				lives--;
+				health = 1.0f;
+				if (lives < 0) {
+					isPlaying = false;
+					PlaySound(gameOver);
+				}
+				showPlayerDeath = true;
+				playerDeathCounter = 0.0f;
+				Explosion explosion{ explosionSpritesheets[GetRandomValue(0, 1)], thePlayer->GetPosition() };
+				theEffects.push_back(explosion);
+			}
+
 			// Check collisions
 			CheckBulletsCollisions();
 			CheckPlayerCollisions();
@@ -124,10 +168,20 @@ int main(int argc, char* argv[])
 			// Call the method to see if we want to spawn new asteroids
 			SpawnAsteroids(deltaTime);
 
-			// Move the player
-			thePlayer->Move(stickLeft, deltaTime);
-			// Apply turret rotation and shooting logic
-			thePlayer->UpdateTurret(stickRight, deltaTime);
+			if (!showPlayerDeath)
+			{
+				// Move the player
+				thePlayer->Move(stickLeft, deltaTime);
+				// Apply turret rotation and shooting logic
+				thePlayer->UpdateTurret(stickRight, deltaTime);
+			}
+			else
+			{
+				playerDeathCounter += deltaTime;
+				if (playerDeathCounter >= 1.5f)
+					showPlayerDeath = false;
+			}
+
 			// Update the bullets, if any
 			for (auto it = theBullets.begin(); it != theBullets.end(); it++)
 			{
@@ -144,6 +198,15 @@ int main(int argc, char* argv[])
 				// if the object must die then add it to the death list
 				if (it->IsToDie())
 					asteroidsToDie.push_back(*it);
+			}
+			// Update effects
+			for (auto it = theEffects.begin(); it != theEffects.end(); it++)
+			{
+				// Call the object Update method
+				it->Update(deltaTime);
+				// if the object must die then add it to the death list
+				if (it->IsToDie())
+					ExplosionsToDie.push_back(*it);
 			}
 			// Process the death list
 			CleanLists();
@@ -165,6 +228,7 @@ int main(int argc, char* argv[])
 				asteroidsSpawningTimer = 100.0f;
 				currentPoints = 0;
 				lives = 4;
+				health = 1.0f;
 				CleanLists();
 				theAsteroids.clear();
 				theBullets.clear();
@@ -189,12 +253,18 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
-				thePlayer->Draw();
+				if (!showPlayerDeath)
+				{
+					thePlayer->Draw();
+				}
 				// Draw the bullets, if any
 				for (auto it = theBullets.begin(); it != theBullets.end(); it++)
 					it->Draw();
 				// Draw the asteroids, if any
 				for (auto it = theAsteroids.begin(); it != theAsteroids.end(); it++)
+					it->Draw();
+				// Draw the effects, if any
+				for (auto it = theEffects.begin(); it != theEffects.end(); it++)
 					it->Draw();
 			}
 			// Draw the HUD
@@ -241,6 +311,17 @@ void DrawHUD()
 		lifeIconDestination.y = 20;
 		DrawTexturePro(lifeIcon, lifeIconRect, lifeIconDestination, Vector2Zero(), 0, WHITE);
 	}
+	// Draw health bar
+	Color hbColor;
+	if (health >= 0.7f)
+		hbColor = GREEN;
+	else if (health >= 0.4f)
+		hbColor = YELLOW;
+	else
+		hbColor = RED;
+	auto textLenght = MeasureTextEx(stencil, "Health: ", 18, 0);
+	DrawTextEx(stencil, "Health: ", Vector2{ screen.width / 2 - textLenght.x, 10 }, 18, 0, YELLOW);
+	DrawRectangle(screen.width / 2, 8, 200 * health, 20, hbColor);
 }
 
 /// <summary>
@@ -254,6 +335,7 @@ void CheckPlayerCollisions()
 		{
 			cameraShakeLevel = Clamp(cameraShakeLevel += 0.2, 0.0f, 1.0f);
 			asteroid->YouMustDie();
+			health = Clamp(health - 0.15f, 0.0f, 1.0f);
 		}
 	}
 }
@@ -277,6 +359,8 @@ void CheckBulletsCollisions()
 				{
 					SpawnRubble(asteroid->GetPosition(), newScale, asteroid->GetSpeed() * 1.2f);
 				}
+				Explosion explosion{ explosionSpritesheets[GetRandomValue(0, 1)], asteroid->GetPosition() };
+				theEffects.push_back(explosion);
 				break;
 			}
 		}
@@ -344,6 +428,9 @@ void CleanLists()
 		theBullets.remove(*it);
 	for (auto it = asteroidsToDie.begin(); it != asteroidsToDie.end(); it++)
 		theAsteroids.remove(*it);
+	for (auto it = ExplosionsToDie.begin(); it != ExplosionsToDie.end(); it++)
+		theEffects.remove(*it);
 	bulletsToDie.clear();
 	asteroidsToDie.clear();
+	ExplosionsToDie.clear();
 }

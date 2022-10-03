@@ -8,6 +8,8 @@
 #include "Bullet.h"
 
 extern std::list<Bullet> theBullets;
+extern Texture2D bulletTexture;
+extern Sound bulletSound[3];
 
 void Ship::Draw()
 {
@@ -15,8 +17,6 @@ void Ship::Draw()
 	destination.x = currentPosition.x;
 	destination.y = currentPosition.y;
 
-	destination.width = shipRect.width * scale;
-	destination.height = shipRect.height * scale;
 	DrawTexturePro(shipTexture, shipRect, destination, shipPivot, currentRotation, WHITE);
 	// Draw the turret
 	destination.width = turretRect.width * turretScale;
@@ -67,6 +67,7 @@ void Ship::UpdateTurret(Vector2 stickValues, float deltaTime)
 			Bullet bullet{ bulletTexture, stickValues, pos };
 			// Add the new bullet to the list
 			theBullets.push_back(bullet);
+			PlaySound(bulletSound[GetRandomValue(0, 2)]);
 		}
 	}
 	else

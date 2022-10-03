@@ -18,6 +18,11 @@ public:
 		shipRect.height = shipTexture.height;
 		shipPivot.x = shipTexture.width / 2 * scale;
 		shipPivot.y = shipTexture.height / 2 * scale;
+
+		destination.width = shipRect.width * scale;
+		destination.height = shipRect.height * scale;
+
+		// this odd radius is necessary because the incorrect collision check methods in Raylib
 		objectRadius = shipTexture.width / 3 * scale;
 
 		turretRect.width = turretTexture.width;
@@ -32,8 +37,6 @@ public:
 		currentPosition.y = screen.height / 2;
 
 		turretPosition = currentPosition;
-
-		bulletTexture = LoadTexture("resources/Textures/bullet.png");
 	}
 	void Draw();
 	void Move(Vector2 stickValues, float deltaTime);
@@ -65,6 +68,5 @@ private:
 	
 	Texture2D shipTexture;
 	Texture2D turretTexture;
-	Texture2D bulletTexture;
 };
 

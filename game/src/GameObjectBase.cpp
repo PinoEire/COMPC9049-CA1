@@ -27,6 +27,10 @@ void GameObjectBase::Update(float deltaTime)
 		mustDie = true;
 }
 
+void GameObjectBase::Draw()
+{
+}
+
 float GameObjectBase::GetScale()
 {
 	return scale;
