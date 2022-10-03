@@ -29,7 +29,11 @@ float asteroidsSpawningTimer = 0;
 float const asteroidsSpawnTime = 6;
 int const maxAsteroidsToSpawn = 2;
 Texture2D asteroidTextures[2];
+Texture2D lifeIcon;
+Rectangle lifeIconRect{};
+Rectangle lifeIconDestination{};
 bool isPlaying = false;
+int lives = 4;
 
 /// <summary>
 /// Game execution entry point
@@ -65,6 +69,10 @@ int main(int argc, char* argv[])
 	asteroidTextures[1] = LoadTexture("resources/Textures/Asteroid2.png");
 	Texture2D gamepadTexture = LoadTexture("resources/Textures/gamepad.png");
 	Music music = LoadMusicStream("resources/Audio/bkmusic.mp3");
+
+	lifeIcon = LoadTexture("resources/Textures/lifeIcon.png");
+	lifeIconRect = { 0, 0, (float)lifeIcon.width, (float)lifeIcon.height };
+	lifeIconDestination = { 0, 0, lifeIcon.width * 0.5f, lifeIcon.height * 0.5f };
 
 
 	// Load the font
@@ -133,6 +141,7 @@ int main(int argc, char* argv[])
 				isPlaying = true;
 				asteroidsSpawningTimer = 100;
 				currentPoints = 0;
+				lives = 4;
 				CleanLists();
 				theAsteroids.clear();
 				theBullets.clear();
@@ -188,11 +197,19 @@ int main(int argc, char* argv[])
 /// </summary>
 void DrawHUD()
 {
+	// Draw score
 	std::string score{ "SCORE: " + std::to_string(currentPoints)};
 	DrawTextEx(stencil, score.c_str(), Vector2{10, 10}, 18, 0, YELLOW);
 	// Draw FPS
 	std::string fps{ "FPS: " + std::to_string(GetFPS()) };
 	DrawTextEx(stencil, fps.c_str(), Vector2{ 10, screen.height - 20 }, 18, 0, YELLOW);
+	// Draw lives
+	for (int i = 0; i < lives; i++)
+	{
+		lifeIconDestination.x = screen.width - (i + 1) * lifeIconDestination.width;
+		lifeIconDestination.y = 20;
+		DrawTexturePro(lifeIcon, lifeIconRect, lifeIconDestination, Vector2Zero(), 0, WHITE);
+	}
 }
 
 /// <summary>
