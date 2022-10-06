@@ -6,12 +6,14 @@ extern Sound explosionSound[3];
 class Explosion : public GameObjectBase
 {
 public:
-	Explosion(Texture2D theTexture, Vector2 thePosition)
+	Explosion(Texture2D theTexture, Vector2 thePosition, int HorizontalFrames, int VerticalFrames, int theFrameRate)
 		: GameObjectBase()
 	{
 		position = thePosition;
-
 		explosionTexture = theTexture;
+		framesH = HorizontalFrames;
+		framesV = VerticalFrames;
+		frameTime = 1.0f / (float)theFrameRate;
 
 		frameWidth = explosionTexture.width / framesH;
 		frameHeight = explosionTexture.height / framesH;

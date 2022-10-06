@@ -2,6 +2,10 @@
 
 extern Rectangle screen;
 
+/// <summary>
+/// Generate a 32 characters long unique identifier
+/// </summary>
+/// <returns>The game object unic identifier</returns>
 std::string GameObjectBase::GetUniqueObjectId()
 {
 	std::string retValue{};
@@ -10,10 +14,18 @@ std::string GameObjectBase::GetUniqueObjectId()
 	return retValue;
 }
 
+/// <summary>
+/// Base Update method executing 
+/// the canonical update tasks.
+/// </summary>
+/// <param name="deltaTime">The delta time</param>
 void GameObjectBase::Update(float deltaTime)
 {
+	// Move the object
 	position.x += speed * direction.x * deltaTime;
 	position.y += speed * direction.y * deltaTime;
+
+	// Make the object looping in the screen window 
 	if (position.x < 0)
 		position.x = screen.width;
 	if (position.y < 0)
@@ -22,6 +34,7 @@ void GameObjectBase::Update(float deltaTime)
 		position.x = 0;
 	if (position.y > screen.height)
 		position.y = 0;
+	// Implement a Time To Live feature for the game objects
 	timeToLiveCounter += deltaTime;
 	if (timeToLiveCounter >= timeToLive)
 		mustDie = true;

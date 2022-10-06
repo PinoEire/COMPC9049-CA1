@@ -6,6 +6,7 @@
 #include "Explosion.h"
 #include <list>
 
+// Declare the external references to the global variables
 extern int screenWidth;
 extern int screenHeight;
 extern std::list<Bullet> theBullets;
@@ -17,10 +18,12 @@ extern Texture2D bulletTexture;
 extern Sound bulletSound[3];
 extern Sound explosionSound[3];
 
-
+// Declare the constants
 static const char* gameWindowTitle = "Asteroids Remake";
+static const char* STR_HEALT = "Health: ";
+static const char* STR_SCORE = "SCORE: ";
 
-// Forward declarations
+// Forward declarations of methods
 void DrawHUD();
 void CleanLists();
 void CheckBulletsCollisions();
@@ -30,6 +33,7 @@ void SpawnAsteroids(float deltaTime);
 void SpawnRubble(Vector2 origin, float newScale, float newSpeed);
 void CreateAnAsteroid(Vector2 thePosition, float theSpeed, float theScale);
 
+// Forward declarations of variables
 Font stencil;
 std::list<Bullet> bulletsToDie;
 std::list<Asteroid> asteroidsToDie;
@@ -126,6 +130,10 @@ int main(int argc, char* argv[])
 	// Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
+		/*
+		* UPDATE LOGIC
+		*/
+
 		// Reset camera
 		camera.zoom = 1.0f;
 		camera.target = { 0, 0 };
@@ -135,9 +143,11 @@ int main(int argc, char* argv[])
 		// Play the music
 		UpdateMusicStream(music);
 		timePlayed = GetMusicTimePlayed(music) / GetMusicTimeLength(music);
+		// Loop the music
 		if (timePlayed >= 1.0f)
 			SeekMusicStream(music, 0);
 
+		// Check if the player is playing and the gamepad is available
 		if (isPlaying && IsGamepadAvailable(0))
 		{
 			// Get the sticks' values
@@ -151,23 +161,29 @@ int main(int argc, char* argv[])
 			{
 				lives--;
 				health = 1.0f;
+				// Manage last death
 				if (lives < 0) {
 					isPlaying = false;
 					PlaySound(gameOver);
 				}
+				// Set the death and create the explosion
 				showPlayerDeath = true;
 				playerDeathCounter = 0.0f;
-				Explosion explosion{ explosionSpritesheets[GetRandomValue(0, 1)], thePlayer->GetPosition() };
+				// Creathe the explosion effect picking one at random
+				Explosion explosion{ explosionSpritesheets[GetRandomValue(0, 1)], thePlayer->GetPosition(), 5, 5, 30 };
+				// Add the effect to the effects list
 				theEffects.push_back(explosion);
 			}
 
-			// Check collisions
+			// Check the bullets' collisions
 			CheckBulletsCollisions();
+			// Check the player's collisions
 			CheckPlayerCollisions();
 
 			// Call the method to see if we want to spawn new asteroids
 			SpawnAsteroids(deltaTime);
 
+			// Process player movement is they are not dead
 			if (!showPlayerDeath)
 			{
 				// Move the player
@@ -177,6 +193,7 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
+				// If the player is dead we don't draw draw it for 1.5 seconds
 				playerDeathCounter += deltaTime;
 				if (playerDeathCounter >= 1.5f)
 					showPlayerDeath = false;
@@ -211,20 +228,25 @@ int main(int argc, char* argv[])
 			// Process the death list
 			CleanLists();
 
-			// Update camera shaking level
-			cameraShakeLevel = Clamp(cameraShakeLevel -= deltaTime, 0.0f, 1.0f);
+			// Update camera shaking level 
+			// (using a basic algorithm here instead of the usual perlin noise for the sake of simplicity)
 			cameraOffset.x = cameraShakeLevel * cameraOffsetMax * GetRandomOneOrMinusOne();
 			cameraOffset.y = cameraShakeLevel * cameraOffsetMax * GetRandomOneOrMinusOne();
 			cameraAngle = cameraShakeLevel * cameraAngleMax * GetRandomOneOrMinusOne();
 			camera.offset = cameraOffset;
 			camera.rotation = cameraAngle;
-		} 
+			// reduce the level od shaking
+			cameraShakeLevel = Clamp(cameraShakeLevel -= deltaTime, 0.0f, 1.0f);
+		}
+		// If not playing then present the intro screen
 		else if (!isPlaying)
 		{
-			// Intro screen
+			// To start a new game when pressing the "A" on the gamepad 
+			// we reset the necessary variables
 			if (GetGamepadButtonPressed() == GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
 			{
 				isPlaying = true;
+				// force to spawn a set of asteroids immediately
 				asteroidsSpawningTimer = 100.0f;
 				currentPoints = 0;
 				lives = 4;
@@ -235,7 +257,10 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		// Drawing logic
+		/*
+		* DRAWING LOGIC
+		*/
+
 		BeginDrawing();
 		// start the 2D camera
 		BeginMode2D(camera);
@@ -246,11 +271,13 @@ int main(int argc, char* argv[])
 
 		if (isPlaying)
 		{
+			// Is there a gamepad?
 			if (!IsGamepadAvailable(0))
 			{
-				// Error message in case there is no gamepad attached
+				// Error message in case there is no gamepad attached and nothing else
 				DrawText("Cannot find any valid gamepad!", 0, 0, 48, RED);
 			}
+			// Yes, there is a gamepad, so we draw the game's items
 			else
 			{
 				if (!showPlayerDeath)
@@ -288,8 +315,14 @@ int main(int argc, char* argv[])
 	CloseWindow();
 }
 
+/// <summary>
+/// A method to randomly return either 1 or -1
+/// </summary>
+/// <returns>Either 1 or -1</returns>
 int GetRandomOneOrMinusOne()
 {
+	// We get a random between 0 and 1, and then 
+	// return -1 if we get 0, otherwise 1
 	return GetRandomValue(0, 1) == 0 ? -1 : 1;
 }
 
@@ -299,7 +332,7 @@ int GetRandomOneOrMinusOne()
 void DrawHUD()
 {
 	// Draw score
-	std::string score{ "SCORE: " + std::to_string(currentPoints)};
+	std::string score{ STR_SCORE + std::to_string(currentPoints)};
 	DrawTextEx(stencil, score.c_str(), Vector2{10, 10}, 18, 0, YELLOW);
 	// Draw FPS
 	std::string fps{ "FPS: " + std::to_string(GetFPS()) };
@@ -311,7 +344,9 @@ void DrawHUD()
 		lifeIconDestination.y = 20;
 		DrawTexturePro(lifeIcon, lifeIconRect, lifeIconDestination, Vector2Zero(), 0, WHITE);
 	}
-	// Draw health bar
+	// Draw health the bar 
+	// using colours red/yellow/green based on 
+	// how much health we have left
 	Color hbColor;
 	if (health >= 0.7f)
 		hbColor = GREEN;
@@ -319,8 +354,9 @@ void DrawHUD()
 		hbColor = YELLOW;
 	else
 		hbColor = RED;
-	auto textLenght = MeasureTextEx(stencil, "Health: ", 18, 0);
-	DrawTextEx(stencil, "Health: ", Vector2{ screen.width / 2 - textLenght.x, 10 }, 18, 0, YELLOW);
+	// Get the lenght of the text so that we can compute the correct horizontal position 
+	auto textLenght = MeasureTextEx(stencil, STR_HEALT, 18, 0);
+	DrawTextEx(stencil, STR_HEALT, Vector2{ screen.width / 2 - textLenght.x, 10 }, 18, 0, YELLOW);
 	DrawRectangle(screen.width / 2, 8, 200 * health, 20, hbColor);
 }
 
@@ -329,9 +365,12 @@ void DrawHUD()
 /// </summary>
 void CheckPlayerCollisions()
 {
+	// Parse all the asteroid and check if we are colliding
 	for (auto asteroid = theAsteroids.begin(); asteroid != theAsteroids.end(); asteroid++)
 	{
-		if (CheckCollisionCircles(asteroid->GetPosition(), asteroid->GetRadius(), thePlayer->GetPosition(), thePlayer->GetRadius()))
+		// Using two circles because the Circle
+		if (CheckCollisionCircles(asteroid->GetPosition(), asteroid->GetRadius(), 
+									thePlayer->GetPosition(), thePlayer->GetRadius()))
 		{
 			cameraShakeLevel = Clamp(cameraShakeLevel += 0.2, 0.0f, 1.0f);
 			asteroid->YouMustDie();
@@ -359,7 +398,7 @@ void CheckBulletsCollisions()
 				{
 					SpawnRubble(asteroid->GetPosition(), newScale, asteroid->GetSpeed() * 1.2f);
 				}
-				Explosion explosion{ explosionSpritesheets[GetRandomValue(0, 1)], asteroid->GetPosition() };
+				Explosion explosion{ explosionSpritesheets[GetRandomValue(0, 1)], asteroid->GetPosition(), 5, 5, 30 };
 				theEffects.push_back(explosion);
 				break;
 			}
@@ -374,6 +413,7 @@ void SpawnRubble(Vector2 origin, float newScale, float newSpeed)
 	// Spawn the rubble
 	for (int i = 0; i < howMany; i++)
 	{
+		// Spawn the new asteroids
 		CreateAnAsteroid(origin, newSpeed, newScale);
 	}
 }
@@ -424,12 +464,16 @@ void CreateAnAsteroid(Vector2 thePosition, float theSpeed, float theScale)
 /// </summary>
 void CleanLists()
 {
+	// Remove all dead bullets
 	for (auto it = bulletsToDie.begin(); it != bulletsToDie.end(); it++)
 		theBullets.remove(*it);
+	// Remove all dead asteroids
 	for (auto it = asteroidsToDie.begin(); it != asteroidsToDie.end(); it++)
 		theAsteroids.remove(*it);
+	// Remove all dead explosions
 	for (auto it = ExplosionsToDie.begin(); it != ExplosionsToDie.end(); it++)
 		theEffects.remove(*it);
+	// Clear the "to die" lists
 	bulletsToDie.clear();
 	asteroidsToDie.clear();
 	ExplosionsToDie.clear();

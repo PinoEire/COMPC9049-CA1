@@ -11,13 +11,21 @@ enum Tags
 	bullet
 };
 
+/// <summary>
+/// Base class for the game objects. 
+/// This is a simplification of what 
+/// a fully fledged Game Object is supposed to be.
+/// </summary>
 class GameObjectBase
 {
 public:
+	// Constructor
 	GameObjectBase()
 	{
+		// Generate a unique object identifier
 		myId = GetUniqueObjectId();
 	}
+	// Adding the == operator necessary to use the lists
 	bool operator == (const GameObjectBase &other) const
 	{
 		return this->myId == other.myId;

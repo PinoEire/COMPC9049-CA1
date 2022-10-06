@@ -6,6 +6,7 @@
 #include "Bullet.h"
 #include "Explosion.h"
 
+// Declatation of global variables
 int screenWidth = 1280;
 int screenHeight = 720;
 Rectangle screen{ 0, 0, screenWidth, screenHeight };

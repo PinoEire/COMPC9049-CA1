@@ -8,11 +8,14 @@ void Explosion::Draw()
 
 void Explosion::Update(float deltaTime)
 {
+    // Rotate 5 degrees per second
     rotation += 5 * deltaTime;
+    // Check if we are still playing the animation
     if (playing)
     {
+        // Increase the frame rate counter
         frameCounter += deltaTime;
-
+        // Check if it's time to move to the next fraame
         if (frameCounter >= frameTime)
         {
             frameCounter = 0.0f;
