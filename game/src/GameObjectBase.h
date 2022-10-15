@@ -38,27 +38,34 @@ public:
 	bool CheckCollision(Vector2 otherCenter, float otherRadius);
 	float GetScale();
 	float GetSpeed();
-	Vector2 GetPosition();
+	virtual Vector2 GetPosition();
 	float GetRadius();
 	void YouMustDie();
+
 protected:
 	float objectRadius;
-	float scale = 1;
-	float rotation = 0;
-	Vector2 objectCenter;
-	Vector2 pivot{};
-	float speed = 0;
-	float timeToLive = 2;
+	float scale = 1.0f;
+	float rotation = 0.0f;
+	float speed = 0.0f;
+	float timeToLive = 2.0f;
+
 	bool mustDie = false;
+
 	std::string myId{};
+
 	Tags tag{};
+
+	Vector2 objectCenter{};
+	Vector2 pivot{};
 	Vector2 direction{};
 	Vector2 position{};
-	Rectangle objectRect{ 0, 0, 0, 0 };
-	Rectangle destination{ 0, 0, 0, 0 };
+	Rectangle objectRect{ 0.0f, 0.0f, 0.0f, 0.0f };
+	Rectangle destination{ 0.0f, 0.0f, 0.0f, 0.0f };
+	
 	bool ImCircular = true;
+
 private:
-	float timeToLiveCounter = 0;
+	float timeToLiveCounter = 0.0f;
 	std::string GetUniqueObjectId();
 };
 

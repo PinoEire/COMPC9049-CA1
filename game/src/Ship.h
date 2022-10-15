@@ -79,10 +79,11 @@ public:
 	/// <param name="deltaTime">The delta time</param>
 	void UpdateTurret(Vector2 stickValues, float deltaTime);
 
-	Rectangle GetScreenRect();
+	Vector2 GetPosition() override;
+
 private:
-	const float turretScale = 0.25;
-	const float fireRate = 0.25;
+	const float turretScale = 0.25f;
+	const float fireRate = 0.25f;
 
 	int countBullets;
 
@@ -91,16 +92,16 @@ private:
 	Vector2 shipPivot{};
 	Vector2 turretPivot{};
 	Vector2 tmpV2{};
-	Vector2 muzzlePosition{168, 35};
+	Vector2 muzzlePosition{168.0f, 35.0f};
 
-	float currentRotation = 0;
-	float turretRotation = 0;
-	float health = 1;
-	float maxSpeed = 500;
-	float fireRateCounter = 0;
+	float currentRotation = 0.0f;
+	float turretRotation = 0.0f;
+	float health = 1.0f;
+	float maxSpeed = 500.0f;
+	float fireRateCounter = 0.0f;
 	
-	Rectangle shipRect{0, 0, 0, 0};
-	Rectangle turretRect{0, 0, 0, 0};
+	Rectangle shipRect{ 0.0f, 0.0f, 0.0f, 0.0f };
+	Rectangle turretRect{0.0f, 0.0f, 0.0f, 0.0f };
 	
 	Texture2D shipTexture;
 	Texture2D turretTexture;

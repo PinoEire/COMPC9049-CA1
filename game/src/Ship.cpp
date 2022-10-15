@@ -36,17 +36,26 @@ void Ship::Move(Vector2 stickValues, float deltaTime)
 {
 	if (Vector2LengthSqr(stickValues) > 0.05)  // Account for the dead zone
 	{
+		// Compute the new player's coordinate on X
 		currentPosition.x += stickValues.x * maxSpeed * deltaTime;
+		// Compute the new player's coordinate on Y
 		currentPosition.y += stickValues.y * maxSpeed * deltaTime;
+
+		// Make the ship constrained in the screen
+		// so that if leaves on a side it appears
+		// back from the opposite side
 		if (currentPosition.x < 0)
-			currentPosition.x = screen.width;
+			currentPosition.x = screen.width;	// Clamp -X
 		if (currentPosition.y < 0)
-			currentPosition.y = screen.height;
+			currentPosition.y = screen.height;	// Clamp -Y
 		if (currentPosition.x > screen.width)
-			currentPosition.x = 0;
+			currentPosition.x = 0;				// Clamp X
 		if (currentPosition.y > screen.height)
-			currentPosition.y = 0;
+			currentPosition.y = 0;				// Clamp Y
+		
+		// Compute and apply the ship rotation
 		currentRotation = atan2(stickValues.y, stickValues.x) * RAD2DEG + 90;
+		// Move the turret along
 		turretPosition = currentPosition;
 	}
 }
@@ -95,7 +104,7 @@ void Ship::UpdateTurret(Vector2 stickValues, float deltaTime)
 	}
 }
 
-Rectangle Ship::GetScreenRect()
+Vector2 Ship::GetPosition()
 {
-	return Rectangle{ destination.x - pivot.x, destination.y - pivot.y, destination.width, destination.height };
+	return currentPosition;
 }

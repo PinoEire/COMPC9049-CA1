@@ -23,20 +23,20 @@ public:
 		// Assign the position from the consctuctor's parameters
 		position = thePosition;
 		// Assign a random rotation
-		rotation = (float)GetRandomValue(1, 359);
+		rotation = static_cast<float>(GetRandomValue(1, 359));
 		// Assign a random rotation speed
-		rotationSpeed = (float)GetRandomValue(10, 100);
+		rotationSpeed = static_cast<float>(GetRandomValue(10, 100));
 		// Set the X pivot of the asteroid
 		pivot.x = asteroidTexture.width / 2.0f * scale;
 		// Set the Y pivot of the asteroid
 		pivot.y = asteroidTexture.height / 2.0f * scale;
 		// Pick a random direction
-		while (Vector2LengthSqr(direction) == 0)
+		while (Vector2LengthSqr(direction) == 0.0f)
 		{
 			// Pick X direction
-			direction.x = (float)GetRandomValue(-180, 180) / (float)360;
+			direction.x = GetRandomValue(-180, 180) / 360.0f;
 			// Pick Y direction
-			direction.y = (float)GetRandomValue(-180, 180) / (float)360;
+			direction.y = GetRandomValue(-180, 180) / 360.0f;
 		}
 		// Set the object's rectangle width
 		objectRect.width = static_cast<float>(asteroidTexture.width);

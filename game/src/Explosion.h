@@ -21,8 +21,8 @@ public:
 		objectRect.width = frameWidth;
 		objectRect.height = frameHeight;
 
-		objectCenter.x = frameWidth / 2 * scale;
-		objectCenter.y = frameHeight / 2 * scale;
+		objectCenter.x = frameWidth / 2.0f * scale;
+		objectCenter.y = frameHeight / 2.0f * scale;
 
 		scale = 1.0f;
 
@@ -32,17 +32,19 @@ public:
 		destination.height = objectRect.height * scale;
 		PlaySound(explosionSound[GetRandomValue(0, 2)]);
 	}
-	void Draw();
-	void Update(float deltaTime);
+	void Draw() override;
+	void Update(float deltaTime) override;
 private:
 	bool playing = true;
-	float framesH = 5;
-	float framesV = 5;
-	float currentFrame = 0;
-	float currentRow = 0;
+
+	float framesH = 5.0f;
+	float framesV = 5.0f;
+	float currentFrame = 0.0f;
+	float currentRow = 0.0f;
 	float frameWidth = 0.0f;
 	float frameHeight = 0.0f;
 	float frameTime = 1.0f /30.0f;
 	float frameCounter = 1.0f;
+
 	Texture2D explosionTexture;
 };
