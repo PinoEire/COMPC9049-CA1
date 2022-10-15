@@ -16,7 +16,7 @@ Texture2D bulletTexture;
 Sound bulletSound[3];
 Sound explosionSound[3];
 
-std::list<Bullet> theBullets;
-std::list<Asteroid> theAsteroids;
-std::list<Explosion> theEffects;
+std::list<Bullet> theBullets;		// List to hold reference to the live bullets
+std::list<Asteroid> theAsteroids;	// List to hold reference to the live asteroids
+std::list<Explosion> theEffects;	// List to hold reference to the live explosions
 

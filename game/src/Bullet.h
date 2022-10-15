@@ -26,7 +26,7 @@ public:
 		ImCircular = false;
 	}
 
-	void Draw();
+	void Draw() override;
 private:
 	Texture2D bulletTexture;
 };
