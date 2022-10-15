@@ -26,6 +26,9 @@ public:
 		ImCircular = false;
 	}
 
+	/// <summary>
+	/// The method drawing the bullet on screen
+	/// </summary>
 	void Draw() override;
 private:
 	Texture2D bulletTexture;

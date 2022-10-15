@@ -32,8 +32,17 @@ public:
 		destination.height = objectRect.height * scale;
 		PlaySound(explosionSound[GetRandomValue(0, 2)]);
 	}
+	/// <summary>
+	/// The method drawing the explosion on screen
+	/// </summary>
 	void Draw() override;
+
+	/// <summary>
+	/// Method to update the necessary variables' values
+	/// </summary>
+	/// <param name="deltaTime">The delta time</param>
 	void Update(float deltaTime) override;
+
 private:
 	bool playing = true;
 

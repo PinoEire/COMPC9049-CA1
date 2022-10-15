@@ -79,6 +79,10 @@ public:
 	/// <param name="deltaTime">The delta time</param>
 	void UpdateTurret(Vector2 stickValues, float deltaTime);
 
+	/// <summary>
+	/// Returns the ship's position
+	/// </summary>
+	/// <returns>The ship's position</returns>
 	Vector2 GetPosition() override;
 
 private:

@@ -47,9 +47,16 @@ public:
 		// compute the visual radius of the object
 		objectRadius = asteroidTexture.width * scale;
 	}
-	// Define the Draw method
+
+	/// <summary>
+	/// The method drawing the asteroid on screen
+	/// </summary>
 	void Draw() override;
-	// Define the Update methos
+
+	/// <summary>
+	/// Method to update the necessary variables' values
+	/// </summary>
+	/// <param name="deltaTime">The delta time</param>
 	void Update(float deltaTime) override;
 private:
 	float rotationSpeed;

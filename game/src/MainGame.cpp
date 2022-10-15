@@ -280,8 +280,10 @@ int main(int argc, char* argv[])
 			// Yes, there is a gamepad, so we draw the game's items
 			else
 			{
+				// Check if we have to draw the player or not
 				if (!showPlayerDeath)
 				{
+					// Draw the player
 					thePlayer->Draw();
 				}
 				// Draw the bullets, if any

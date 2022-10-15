@@ -1,11 +1,18 @@
 #include "Explosion.h"
 
+/// <summary>
+/// The method drawing the explosion on screen
+/// </summary>
 void Explosion::Draw()
 {
     if (playing) 
         DrawTexturePro(explosionTexture, objectRect, destination, objectCenter, rotation, WHITE);
 }
 
+/// <summary>
+/// Method to update the necessary variables' values
+/// </summary>
+/// <param name="deltaTime">The delta time</param>
 void Explosion::Update(float deltaTime)
 {
     // Rotate 5 degrees per second

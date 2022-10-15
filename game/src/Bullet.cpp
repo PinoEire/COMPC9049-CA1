@@ -7,6 +7,9 @@
 
 extern Rectangle screen;
 
+/// <summary>
+/// The method drawing the bullet on screen
+/// </summary>
 void Bullet::Draw()
 {
 	destination.x = position.x;

@@ -32,7 +32,16 @@ public:
 	}
 	Tags GetTag();
 	bool IsToDie();
+
+	/// <summary>
+	/// Method to update the necessary variables' values
+	/// </summary>
+	/// <param name="deltaTime">The delta time</param>
+
 	virtual void Update(float deltaTime);
+	/// <summary>
+	/// The method drawing the object on screen
+	/// </summary>
 	virtual void Draw();
 	bool CheckCollision(Rectangle otherRect);
 	bool CheckCollision(Vector2 otherCenter, float otherRadius);
