@@ -32,8 +32,8 @@ public:
 	}
 	Tags GetTag();
 	bool IsToDie();
-	void Update(float deltaTime);
-	void Draw();
+	virtual void Update(float deltaTime);
+	virtual void Draw();
 	bool CheckCollision(Rectangle otherRect);
 	bool CheckCollision(Vector2 otherCenter, float otherRadius);
 	float GetScale();

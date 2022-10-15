@@ -3,46 +3,82 @@
 
 extern Rectangle screen;
 
+/// <summary>
+/// Ship class used for the player. It inherits from the class GameObjectBase
+/// </summary>
 class Ship : public GameObjectBase
 {
 public:
+	/// <summary>
+	/// Ship class constructor
+	/// </summary>
+	/// <param name="ship">The ship texture</param>
+	/// <param name="turret">The turret texture</param>
 	Ship(Texture2D ship, Texture2D turret)
-		: GameObjectBase()
+		: GameObjectBase()	// Call the base class constructor
 	{
+		// Set the tag to player
 		tag = Tags::player;
+		// Set the ship texture from the parameter
 		shipTexture = ship;
+		// Set the turret texture from the parameter
 		turretTexture = turret;
-		scale = 0.5;
+		// Set the scale for the textures - This is hard coded
+		scale = 0.5f;
 
-		shipRect.width = shipTexture.width;
-		shipRect.height = shipTexture.height;
-		shipPivot.x = shipTexture.width / 2 * scale;
-		shipPivot.y = shipTexture.height / 2 * scale;
+		// Set the ship rectangle
+		shipRect.width = static_cast<float>(shipTexture.width);		// Set the ship width
+		shipRect.height = static_cast<float>(shipTexture.height);	// Set the ship height
 
-		destination.width = shipRect.width * scale;
-		destination.height = shipRect.height * scale;
+		// Set the ship pivot
+		shipPivot.x = shipTexture.width / 2.0f * scale;		// Compute the X pivot
+		shipPivot.y = shipTexture.height / 2.0f * scale;	// Compute the Y pivot
+
+		// Set the visual destination rectange 
+		destination.width = shipRect.width * scale;		// Compute the visual width
+		destination.height = shipRect.height * scale;	// Compute  the visual height
 
 		// this odd radius is necessary because the incorrect collision check methods in Raylib
-		objectRadius = shipTexture.width / 3 * scale;
+		objectRadius = shipTexture.width / 3.0f * scale;
 
-		turretRect.width = turretTexture.width;
-		turretRect.height= turretTexture.height;
+		// Set the visual destination rectange 
+		turretRect.width = static_cast<float>(turretTexture.width);		// Compute the visual width
+		turretRect.height = static_cast<float>(turretTexture.height);	// Compute  the visual height
 
-		turretPivot.x = turretTexture.width / 2 * turretScale;
-		turretPivot.y = turretTexture.height / 2 * turretScale;
-		muzzlePosition.x = muzzlePosition.x * turretScale;
-		muzzlePosition.y = muzzlePosition.y * turretScale;
+		// Set the turret pivot
+		turretPivot.x = turretTexture.width / 2.0f * turretScale;	// Compute the X pivot
+		turretPivot.y = turretTexture.height / 2.0f * turretScale;	// Compute the Y pivot
+		// Compute the turret's muzzle position
+		muzzlePosition.x = muzzlePosition.x * turretScale;	// Compute the X
+		muzzlePosition.y = muzzlePosition.y * turretScale;	// Compute the Y
 
-		currentPosition.x = screen.width / 2;
-		currentPosition.y = screen.height / 2;
+		// Set the ship position at the center of the screen
+		currentPosition.x = screen.width / 2.0f;	// Set X position
+		currentPosition.y = screen.height / 2.0f;	// Set Y position
 
+		// Set the turret position to be at the ship pivot
 		turretPosition = currentPosition;
 	}
-	void Draw();
+
+	/// <summary>
+	/// The method drawing the player's ship on screen
+	/// </summary>
+	void Draw() override;
+
+	/// <summary>
+	/// Define the movement manager
+	/// </summary>
+	/// <param name="stickValues">Value read from the stick</param>
+	/// <param name="deltaTime">The delta time</param>
 	void Move(Vector2 stickValues, float deltaTime);
+
+	/// <summary>
+	/// Define the turret update method
+	/// </summary>
+	/// <param name="stickValues">Value read from the stick</param>
+	/// <param name="deltaTime">The delta time</param>
 	void UpdateTurret(Vector2 stickValues, float deltaTime);
-	Vector2 GetPosition();
-	void SetPosition(Vector2 stickValues);
+
 	Rectangle GetScreenRect();
 private:
 	const float turretScale = 0.25;

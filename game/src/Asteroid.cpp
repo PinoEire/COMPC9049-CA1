@@ -13,7 +13,7 @@ void Asteroid::Draw()
 	DrawTexturePro(asteroidTexture, objectRect, destination, pivot, rotation, WHITE);
 }
 
-void Asteroid::Update(float deltaTime) 
+void Asteroid::Update(float deltaTime)
 {
 	GameObjectBase::Update(deltaTime);
 	rotation += rotationSpeed * deltaTime;

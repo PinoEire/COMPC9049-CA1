@@ -86,12 +86,12 @@ int main(int argc, char* argv[])
 	bulletTexture = LoadTexture("resources/Textures/bullet.png");
 	thePlayer = new Ship(LoadTexture("resources/Textures/goShip.png"), LoadTexture("resources/Textures/goTurret.png"));
 	Texture2D background = LoadTexture("resources/Textures/Nebula Aqua-Pink.png");
-	Rectangle bgRect{ 0, 0, background.width, background.height };
+	Rectangle bgRect{ 0.0f, 0.0f, static_cast<float>(background.width), static_cast<float>(background.height) };
 
 	// bgRectDest is the screenk destination rectangle for the background image.
 	// Adding off-screed margin so to allow the camera shake effect to 
 	// present on screen without white borders.
-	Rectangle bgRectDest{ -200, -200, screen.width +400, screen.height + 400};
+	Rectangle bgRectDest{ -200.0f, -200.0f, static_cast<float>(screen.width + 400), static_cast<float>(screen.height + 400) };
 	
 	asteroidTextures[0] = LoadTexture("resources/Textures/Asteroid1.png");
 	asteroidTextures[1] = LoadTexture("resources/Textures/Asteroid2.png");
@@ -357,7 +357,7 @@ void DrawHUD()
 	// Get the lenght of the text so that we can compute the correct horizontal position 
 	auto textLenght = MeasureTextEx(stencil, STR_HEALT, 18, 0);
 	DrawTextEx(stencil, STR_HEALT, Vector2{ screen.width / 2 - textLenght.x, 10 }, 18, 0, YELLOW);
-	DrawRectangle(screen.width / 2, 8, 200 * health, 20, hbColor);
+	DrawRectangle(static_cast<int>(screen.width / 2), 8, static_cast<int>(200 * health), 20, hbColor);
 }
 
 /// <summary>
@@ -372,7 +372,7 @@ void CheckPlayerCollisions()
 		if (CheckCollisionCircles(asteroid->GetPosition(), asteroid->GetRadius(), 
 									thePlayer->GetPosition(), thePlayer->GetRadius()))
 		{
-			cameraShakeLevel = Clamp(cameraShakeLevel += 0.2, 0.0f, 1.0f);
+			cameraShakeLevel = Clamp(cameraShakeLevel += 0.2f, 0.0f, 1.0f);
 			asteroid->YouMustDie();
 			health = Clamp(health - 0.15f, 0.0f, 1.0f);
 		}
@@ -406,6 +406,12 @@ void CheckBulletsCollisions()
 	}
 }
 
+/// <summary>
+/// Spawn the debris of a destroyed asteroid
+/// </summary>
+/// <param name="origin">Coordinate where to spawn the new pieces</param>
+/// <param name="newScale">Visual scale to apply to the new rubble</param>
+/// <param name="newSpeed">The speed to assign to the new debris</param>
 void SpawnRubble(Vector2 origin, float newScale, float newSpeed)
 {
 	// Decide how many smaller asteroids to spawn
@@ -439,16 +445,26 @@ void SpawnAsteroids(float deltaTime)
 		// Spawn the new asteroids
 		for (int i = 0; i < max; i++)
 		{
-			// Pick a new random position
-			if (GetRandomValue(0, 1) == 0)
-				newPosition = { (float)GetRandomValue(0, screen.width), -50 };
+			// Pick a new random position off the screen
+			if (GetRandomValue(0, 1) == 0) // if zero
+				// random X position
+				newPosition = { static_cast<float>(GetRandomValue(0, static_cast<int>(screen.width))), -50.0f };
 			else
-				newPosition = { -50, (float)GetRandomValue(0, screen.height) };
-			CreateAnAsteroid(newPosition, 200, 0.2);
+				// random Y position
+				newPosition = { -50.0f, static_cast<float>(GetRandomValue(0, static_cast<int>(screen.height))) };
+			// Call the method to create the new asteroid
+			CreateAnAsteroid(newPosition, 200.0f, 0.2f);
 		}
 	}
 }
 
+/// <summary>
+/// Create an instance of the Asterois class 
+/// and add it to the list of live asteroids
+/// </summary>
+/// <param name="thePosition">Position where to spawn the asteroid</param>
+/// <param name="theSpeed">Speed of the new asteroid</param>
+/// <param name="theScale">Visual scale of the new asteroid</param>
 void CreateAnAsteroid(Vector2 thePosition, float theSpeed, float theScale)
 {
 	// Pick a random texture index
@@ -474,7 +490,7 @@ void CleanLists()
 	for (auto it = ExplosionsToDie.begin(); it != ExplosionsToDie.end(); it++)
 		theEffects.remove(*it);
 	// Clear the "to die" lists
-	bulletsToDie.clear();
-	asteroidsToDie.clear();
-	ExplosionsToDie.clear();
+	bulletsToDie.clear();		// Clear the bullets
+	asteroidsToDie.clear();		// Clear the asteroids
+	ExplosionsToDie.clear();	// Clear the explosions
 }

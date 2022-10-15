@@ -11,8 +11,8 @@ public:
 	{
 		position = thePosition;
 		explosionTexture = theTexture;
-		framesH = HorizontalFrames;
-		framesV = VerticalFrames;
+		framesH = static_cast<float>(HorizontalFrames);
+		framesV = static_cast<float>(VerticalFrames);
 		frameTime = 1.0f / (float)theFrameRate;
 
 		frameWidth = explosionTexture.width / framesH;
