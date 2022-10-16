@@ -1,3 +1,10 @@
+/*
+* Author: Giuseppe De Francesco
+* Year: 2022
+* Product: Asteroids
+*          Continous Assessment 1 for the module COMPC9049
+*          DkIT - MSc in Games and Extended Reality 2022-2024
+*/
 #pragma once
 #include "GameObjectBase.h"
 
@@ -42,6 +49,10 @@ public:
 		objectRect.width = static_cast<float>(asteroidTexture.width);
 		// Set the object's rectangle height
 		objectRect.height = static_cast<float>(asteroidTexture.height);
+		// Compute the visual width
+		destination.width = objectRect.width * scale;
+		// Compute the visual height
+		destination.height = objectRect.height * scale;
 		// Set the circular flag 
 		ImCircular = true;
 		// compute the visual radius of the object
@@ -49,7 +60,7 @@ public:
 	}
 
 	/// <summary>
-	/// The method drawing the asteroid on screen
+	/// The method drawing the asteroid on screen overridden from base class
 	/// </summary>
 	void Draw() override;
 

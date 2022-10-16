@@ -1,3 +1,10 @@
+/*
+* Author: Giuseppe De Francesco
+* Year: 2022
+* Product: Asteroids
+*          Continous Assessment 1 for the module COMPC9049
+*          DkIT - MSc in Games and Extended Reality 2022-2024
+*/
 #pragma once
 #include <list>
 #include <string>
@@ -16,7 +23,10 @@ Texture2D bulletTexture;
 Sound bulletSound[3];
 Sound explosionSound[3];
 
-std::list<Bullet> theBullets;		// List to hold reference to the live bullets
-std::list<Asteroid> theAsteroids;	// List to hold reference to the live asteroids
-std::list<Explosion> theEffects;	// List to hold reference to the live explosions
+// List to hold references to the live bullets
+std::list<Bullet> theBullets;
+// List to hold references to the live asteroids
+std::list<Asteroid> theAsteroids;
+// List to hold references to the live explosions
+std::list<Explosion> theEffects;
 

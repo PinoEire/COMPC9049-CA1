@@ -1,3 +1,10 @@
+/*
+* Author: Giuseppe De Francesco
+* Year: 2022
+* Product: Asteroids
+*          Continous Assessment 1 for the module COMPC9049
+*          DkIT - MSc in Games and Extended Reality 2022-2024
+*/
 #include "raylib.h"
 #include "raymath.h"
 #include "Bullet.h"
@@ -148,6 +155,33 @@ int main(int argc, char* argv[])
 			SeekMusicStream(music, 0);
 
 		// Check if the player is playing and the gamepad is available
+			// Manage life and death
+		if (health == 0.0f)
+		{
+			lives--;
+			health = 1.0f;
+			// Manage last death
+			if (lives < 0) {
+				isPlaying = false;
+				PlaySound(gameOver);
+				// Reset the camera in case we were in the middle of shaking
+				cameraOffset.x = 0.0f;	// Zero out X offset
+				cameraOffset.y = 0.0f;	// Zero out Y offset
+				cameraAngle = 0.0f;		// Zero out the angle
+				// Assign the X and Y offset
+				camera.offset = cameraOffset;
+				// Assign the rotation
+				camera.rotation = cameraAngle;
+			}
+			// Set the death and create the explosion
+			showPlayerDeath = true;
+			playerDeathCounter = 0.0f;
+			// Creathe the explosion effect picking one at random
+			Explosion explosion{ explosionSpritesheets[GetRandomValue(0, 1)], thePlayer->GetPosition(), 5, 5, 30 };
+			// Add the effect to the effects list
+			theEffects.push_back(explosion);
+		}
+
 		if (isPlaying && IsGamepadAvailable(0))
 		{
 			// Get the sticks' values
@@ -155,25 +189,6 @@ int main(int argc, char* argv[])
 			stickLeft.y = GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_Y);
 			stickRight.x = GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X);
 			stickRight.y = GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y);
-
-			// Manage life and death
-			if (health == 0.0f)
-			{
-				lives--;
-				health = 1.0f;
-				// Manage last death
-				if (lives < 0) {
-					isPlaying = false;
-					PlaySound(gameOver);
-				}
-				// Set the death and create the explosion
-				showPlayerDeath = true;
-				playerDeathCounter = 0.0f;
-				// Creathe the explosion effect picking one at random
-				Explosion explosion{ explosionSpritesheets[GetRandomValue(0, 1)], thePlayer->GetPosition(), 5, 5, 30 };
-				// Add the effect to the effects list
-				theEffects.push_back(explosion);
-			}
 
 			// Check the bullets' collisions
 			CheckBulletsCollisions();
@@ -230,10 +245,12 @@ int main(int argc, char* argv[])
 
 			// Update camera shaking level 
 			// (using a basic algorithm here instead of the usual perlin noise for the sake of simplicity)
-			cameraOffset.x = cameraShakeLevel * cameraOffsetMax * GetRandomOneOrMinusOne();
-			cameraOffset.y = cameraShakeLevel * cameraOffsetMax * GetRandomOneOrMinusOne();
-			cameraAngle = cameraShakeLevel * cameraAngleMax * GetRandomOneOrMinusOne();
+			cameraOffset.x = cameraShakeLevel * cameraOffsetMax * GetRandomOneOrMinusOne();	// Generate X offset
+			cameraOffset.y = cameraShakeLevel * cameraOffsetMax * GetRandomOneOrMinusOne();	// Generate Y offset
+			cameraAngle = cameraShakeLevel * cameraAngleMax * GetRandomOneOrMinusOne();		// Generate rotation
+			// Assign the camera offset
 			camera.offset = cameraOffset;
+			// Assign the camera rotation
 			camera.rotation = cameraAngle;
 			// reduce the level od shaking
 			cameraShakeLevel = Clamp(cameraShakeLevel -= deltaTime, 0.0f, 1.0f);
@@ -377,6 +394,8 @@ void CheckPlayerCollisions()
 			cameraShakeLevel = Clamp(cameraShakeLevel += 0.2f, 0.0f, 1.0f);
 			asteroid->YouMustDie();
 			health = Clamp(health - 0.15f, 0.0f, 1.0f);
+			Explosion explosion{ explosionSpritesheets[GetRandomValue(0, 1)], asteroid->GetPosition(), 5, 5, 30 };
+			theEffects.push_back(explosion);
 		}
 	}
 }

@@ -1,3 +1,10 @@
+/*
+* Author: Giuseppe De Francesco
+* Year: 2022
+* Product: Asteroids
+*          Continous Assessment 1 for the module COMPC9049
+*          DkIT - MSc in Games and Extended Reality 2022-2024
+*/
 #include "GameObjectBase.h"
 
 extern Rectangle screen;
@@ -5,12 +12,16 @@ extern Rectangle screen;
 /// <summary>
 /// Generate a 32 characters long unique identifier
 /// </summary>
-/// <returns>The game object unic identifier</returns>
+/// <returns>The game object unique identifier</returns>
 std::string GameObjectBase::GetUniqueObjectId()
 {
+	// define the string we want to return
 	std::string retValue{};
+	// Loop 32 times
 	for (int i = 0; i < 32; i++)
+		// Concatenate a random ASCII character to the return variable
 		retValue += (char)GetRandomValue(64, 126);
+	// return the unique identifier to the caller
 	return retValue;
 }
 
@@ -43,6 +54,10 @@ void GameObjectBase::Update(float deltaTime)
 float GameObjectBase::GetScale()
 {
 	return scale;
+}
+
+void GameObjectBase::Draw()
+{
 }
 
 bool GameObjectBase::CheckCollision(Rectangle otherRect)
