@@ -93,28 +93,39 @@ public:
 	Vector2 GetPosition() override;
 
 private:
+	// Field holding the turret's scale
 	const float turretScale = 0.25f;
+	// Field holding the ship's fire rate
 	const float fireRate = 0.25f;
-
-	int countBullets;
-
+	// Field holding the ship's position
 	Vector2 currentPosition{};
+	// Field holding the turret's 
 	Vector2 turretPosition{};
+	// Field holding the ship's pivot
 	Vector2 shipPivot{};
+	// Field holding the turret's pivot
 	Vector2 turretPivot{};
+	// Field holding a temporary vector
 	Vector2 tmpV2{};
+	// Field holding the turret's muzzle position
 	Vector2 muzzlePosition{168.0f, 35.0f};
-
+	// Field holding the ship's current rotation
 	float currentRotation = 0.0f;
+	// Field holding the turret's current rotation
 	float turretRotation = 0.0f;
+	// Field holding the ship's health
 	float health = 1.0f;
+	// Field holding the ship's maximum speed
 	float maxSpeed = 500.0f;
+	// Field holding the ship's fire rate time counter
 	float fireRateCounter = 0.0f;
-	
+	// Field holding the ship's rectangle	
 	Rectangle shipRect{ 0.0f, 0.0f, 0.0f, 0.0f };
+	// Field holding the turret's rectangle
 	Rectangle turretRect{0.0f, 0.0f, 0.0f, 0.0f };
-	
+	// Field holding the ship's texture
 	Texture2D shipTexture;
+	// Field holding the turret's texture
 	Texture2D turretTexture;
 };
 

@@ -14,6 +14,13 @@
 class Asteroid : public GameObjectBase
 {
 public:
+	/// <summary>
+	/// Constructor for the Asteroid class
+	/// </summary>
+	/// <param name="theTexture">Texture of this instance of the class</param>
+	/// <param name="thePosition">The initial position of this asteroid on the screen</param>
+	/// <param name="theSpeed">Movement speed for this asteroid</param>
+	/// <param name="theScale">Visual scale of this asteroid instance</param>
 	Asteroid(Texture2D theTexture, Vector2 thePosition, float theSpeed, float theScale)
 		: GameObjectBase()	// Execute the base class constructor
 	{
@@ -70,7 +77,9 @@ public:
 	/// <param name="deltaTime">The delta time</param>
 	void Update(float deltaTime) override;
 private:
+	// field used to store the rotation speed
 	float rotationSpeed;
+	// Field used to store the aasteroid texture
 	Texture2D asteroidTexture;
 };
 
