@@ -21,14 +21,16 @@ void Asteroid::Draw()
 }
 
 /// <summary>
-/// Method to update the necessary variables' values
+/// Method override to update the necessary variables' values
 /// </summary>
 /// <param name="deltaTime">The delta time</param>
 void Asteroid::Update(float deltaTime)
 {
 	// Call the base class Update method
 	GameObjectBase::Update(deltaTime);
+	// Apply rotation
 	rotation += rotationSpeed * deltaTime;
+	// Clamp rotation value between 0 and 359
 	if (rotation >= 360)
 		rotation = 0;
 }

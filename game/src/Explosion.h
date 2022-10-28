@@ -33,11 +33,11 @@ public:
 		// Assign the texture to the instance's field
 		explosionTexture = theTexture;
 		// Assign the horizontal frames
-		framesH = static_cast<float>(HorizontalFrames);
+		framesH = HorizontalFrames;
 		// Assign the vertical frames
-		framesV = static_cast<float>(VerticalFrames);
+		framesV = VerticalFrames;
 		// Assign the frames per second rate for the animation
-		frameTime = 1.0f / (float)theFrameRate;
+		frameTime = 1.0f / static_cast<float>(theFrameRate);
 		// Assign the frame width
 		frameWidth = explosionTexture.width / framesH;
 		// Assign the frame height
@@ -64,27 +64,35 @@ public:
 		PlaySound(explosionSound[GetRandomValue(0, 2)]);
 	}
 	/// <summary>
-	/// The method drawing the explosion on screen
+	/// The overridden method drawing the explosion on screen
 	/// </summary>
 	void Draw() override;
 
 	/// <summary>
-	/// Method to update the necessary variables' values
+	/// Method overridden to update the necessary variables' values
 	/// </summary>
 	/// <param name="deltaTime">The delta time</param>
 	void Update(float deltaTime) override;
 
 private:
-	bool playing = true;
-
-	float framesH = 5.0f;
-	float framesV = 5.0f;
-	float currentFrame = 0.0f;
-	float currentRow = 0.0f;
-	float frameWidth = 0.0f;
-	float frameHeight = 0.0f;
-	float frameTime = 1.0f /30.0f;
-	float frameCounter = 1.0f;
-
-	Texture2D explosionTexture;
+	// Field holding the playing status flag
+	bool playing{ true };
+	// Field holding the amount of horizontal frames
+	int framesH{ 5 };
+	// Field holding the amount of vertical frames
+	int framesV{ 5 };
+	// Field holding the current frame
+	int currentFrame{ 0 };
+	// Field holding the current animation row
+	int currentRow{ 0 };
+	// Field holding the frame's width
+	int frameWidth{ 0 };
+	// Field holding the frame's height
+	int frameHeight{ 0 };
+	// Field holding the frames per second rate
+	float frameTime{ 1.0f / 30.0f };
+	// Field holding the value of the frames' rate time counter
+	float frameCounter{ 1.0f };
+	// Field holding the explosion's spritesheet
+	Texture2D explosionTexture{};
 };

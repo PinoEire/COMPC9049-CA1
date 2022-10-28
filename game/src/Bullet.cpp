@@ -12,16 +12,16 @@
 #include "raymath.h"
 #include <iostream>
 
-extern Rectangle screen;
-
 /// <summary>
-/// The method drawing the bullet on screen
+/// The overridden method drawing the bullet on screen
 /// </summary>
 void Bullet::Draw()
 {
-	destination.x = position.x;
-	destination.y = position.y;
-	destination.width = objectRect.width * scale;
-	destination.height = objectRect.height * scale;
+	// Set the visual destination rectangle
+	destination.x = position.x;						// Set X position
+	destination.y = position.y;						// Set Y position
+	destination.width = objectRect.width * scale;	// Set the scaled width
+	destination.height = objectRect.height * scale;	// Set the scaled height
+	// Draw the bullet
 	DrawTexturePro(bulletTexture, objectRect, destination, pivot, rotation, WHITE);
 }

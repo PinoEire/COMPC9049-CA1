@@ -14,23 +14,41 @@
 #include "raymath.h"
 #include "Bullet.h"
 
+// Declare the globally defined variable holding the bullets
 extern std::list<Bullet> theBullets;
+// Declare the globally defined variable holding the bullet texture
 extern Texture2D bulletTexture;
+// Declare the globally defined variable holding the shooting sounds
 extern Sound bulletSound[3];
 
 /// <summary>
-/// The method drawing the player's ship on screen
+/// The overridden method drawing the player's ship on screen
 /// </summary>
 void Ship::Draw()
 {
-	// Draw the ship
+	// Common destination update for Ship and Turret
+
+	// Update the X position on the screen
 	destination.x = currentPosition.x;
+	// Update the Y position on the screen
 	destination.y = currentPosition.y;
 
+	// Update destination for teh Ship
+
+	// Update the ship's width scale
+	destination.width = shipRect.width * scale;
+	// Update the ship's height scale
+	destination.height = shipRect.height * scale;
+	// Draw the ship
 	DrawTexturePro(shipTexture, shipRect, destination, shipPivot, currentRotation, WHITE);
-	// Draw the turret
+
+	// Update destination for teh Turret
+
+	// Update the turret's width scale
 	destination.width = turretRect.width * turretScale;
+	// Update the turret's height scale
 	destination.height = turretRect.height * turretScale;
+	// Draw the turret
 	DrawTexturePro(turretTexture, turretRect, destination, turretPivot, turretRotation, WHITE);
 }
 
@@ -52,13 +70,13 @@ void Ship::Move(Vector2 stickValues, float deltaTime)
 		// so that if leaves on a side it appears
 		// back from the opposite side
 		if (currentPosition.x < 0)
-			currentPosition.x = screen.width;	// Clamp -X
+			currentPosition.x = screen.width;	// Re-enter on the left
 		if (currentPosition.y < 0)
-			currentPosition.y = screen.height;	// Clamp -Y
+			currentPosition.y = screen.height;	// Re-enter on the bottom
 		if (currentPosition.x > screen.width)
-			currentPosition.x = 0;				// Clamp X
+			currentPosition.x = 0;				// Re-enter on the left
 		if (currentPosition.y > screen.height)
-			currentPosition.y = 0;				// Clamp Y
+			currentPosition.y = 0;				// Re-enter on the top
 		
 		// Compute and apply the ship rotation
 		currentRotation = atan2(stickValues.y, stickValues.x) * RAD2DEG + 90;
@@ -111,7 +129,11 @@ void Ship::UpdateTurret(Vector2 stickValues, float deltaTime)
 	}
 }
 
+/// <summary>
+/// Returns the ship's position
+/// </summary>
+/// <returns>The ship's position</returns>
 Vector2 Ship::GetPosition()
 {
-	return currentPosition;
+	return currentPosition; // returns the ship's position
 }

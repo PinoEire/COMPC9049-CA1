@@ -60,7 +60,7 @@ public:
 	}
 
 	/// <summary>
-	/// The method drawing the bullet on screen
+	/// The overridden method drawing the bullet on screen
 	/// </summary>
 	void Draw() override;
 private:

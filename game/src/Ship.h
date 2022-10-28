@@ -68,7 +68,7 @@ public:
 	}
 
 	/// <summary>
-	/// The method drawing the player's ship on screen
+	/// The overridden method drawing the player's ship on screen
 	/// </summary>
 	void Draw() override;
 

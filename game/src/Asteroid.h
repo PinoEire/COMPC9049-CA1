@@ -72,7 +72,7 @@ public:
 	void Draw() override;
 
 	/// <summary>
-	/// Method to update the necessary variables' values
+	/// Method override to update the necessary variables' values
 	/// </summary>
 	/// <param name="deltaTime">The delta time</param>
 	void Update(float deltaTime) override;

@@ -8,48 +8,56 @@
 #include "Explosion.h"
 
 /// <summary>
-/// The method drawing the explosion on screen
+/// The overridden method drawing the explosion on screen
 /// </summary>
 void Explosion::Draw()
 {
+    // If the animation is still playing then draw the explosion effect on the screen 
     if (playing) 
         DrawTexturePro(explosionTexture, objectRect, destination, objectCenter, rotation, WHITE);
 }
 
 /// <summary>
-/// Method to update the necessary variables' values
+/// Method overridden to update the necessary variables' values
 /// </summary>
 /// <param name="deltaTime">The delta time</param>
 void Explosion::Update(float deltaTime)
 {
-    // Rotate 5 degrees per second
-    rotation += 5 * deltaTime;
+    // We do not call the base class method because the explosion is stationary,
+    // so there is no need to compute any movement across X and Y coordinates.
+    
     // Check if we are still playing the animation
     if (playing)
     {
-        // Increase the frame rate counter
+        // Rotate 5 degrees per second
+        rotation += 5 * deltaTime;
+        // Increase the frame rate time counter
         frameCounter += deltaTime;
         // Check if it's time to move to the next fraame
         if (frameCounter >= frameTime)
         {
+            // reset the frame rate time counter
             frameCounter = 0.0f;
+            // Advance the frame
             currentFrame++;
 
-            if (currentFrame >= framesH)
+            // check for the end of horizontal frames
+            if (currentFrame == framesH)
             {
-                currentFrame = 1;
+                // reset the horizontal frame
+                currentFrame = 0;
                 currentRow++;
-
-                if (currentRow >= framesV)
+                // Check for the last frame of the animation and, if so, kill the effect
+                if (currentRow == framesV)
                 {
-                    currentRow = 1;
-                    playing = false;
-                    mustDie = true;
+                    currentRow = 0;     // Reset the row
+                    playing = false;    // Signal no longet playing
+                    mustDie = true;     // Signal that must be destroyed
                 }
             }
         }
     }
-
-    objectRect.x = frameWidth * currentFrame;
-    objectRect.y = frameHeight * currentRow;
+    // update the row/column frame selectors
+    objectRect.x = frameWidth * currentFrame;   // Column position
+    objectRect.y = frameHeight * currentRow;    // Row position
 }
